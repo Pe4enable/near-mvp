@@ -1,6 +1,5 @@
 <template>
   <div>
-    <button class="link" style="float: right" v-on:click="logout">Sign out</button>
     <main>
       <h1>Create new NFT</h1>
       <form class="form-nft" @submit.prevent="createNft">
@@ -32,7 +31,7 @@
       </form>
       <h1 class="h1--no-logo">{{accountId}} account NFTs</h1>
       <div class="nft-cards">
-        <div class="nft-cards__item" v-for="(item, key) in nftArray" :key="key">
+        <div class="nft-cards__item" v-for="(item, key) in getAllNFTs" :key="key">
           <img :src="item.metadata.media" class="nft-cards__media">
         </div>
       </div>
@@ -62,20 +61,16 @@
 </template>
 
 <script>
-import EffectCards from "./EffectCards"
+import EffectCards from "../components/EffectCards.vue"
+import Notification from "../components/Notification.vue"
 import { logout } from "../utils"
 import { mapGetters } from "vuex"
 
-import Notification from "./Notification.vue"
 
 export default {
   name: "SignedIn",
 
   async mounted() {
-    this.getNftTotal()
-    this.nftMetadata()
-    this.nftTokendata()
-    this.nftTokensForOwner()
     await this.$store.dispatch("setEffects")
   },
 
@@ -84,7 +79,7 @@ export default {
     EffectCards,
   },
 
-  data: function () {
+  data() {
     return {
       nftObj: {
         token_id: 'token-2',
@@ -107,6 +102,7 @@ export default {
       'getEffectChoice',
       'getEffects',
       'getDeployedPictureMeta',
+      'getAllNFTs'
     ]),
     isSignedIn() {
       return window.walletConnection ? window.walletConnection.isSignedIn(): false
@@ -170,37 +166,6 @@ export default {
           console.log(data, 'getNftTotal')
         })
     },
-    getNftTotal() {
-      //retrieve greeting
-      window.contract
-        .nft_supply_for_owner({ account_id: window.accountId })
-        .then((data) => {
-          console.log(data, 'getNftTotal')
-        })
-    },
-    nftTokensForOwner() {
-      window.contract
-        .nft_tokens_for_owner({ account_id: window.accountId, limit: 15 })
-        .then((data) => {
-          this.nftArray = data
-          this.$store.dispatch('passNFT', data[2].metadata)
-          console.log(data, 'nftTokensForOwner')
-        })
-    },
-    nftTokendata() {
-      window.contract
-        .nft_token({ token_id: 'token-1' })
-        .then((data) => {
-          console.log(data, 'nftTokendata')
-        })
-    },
-    nftMetadata() {
-      window.contract
-        .nft_metadata()
-        .then((data) => {
-          console.log(data, 'nftMetadata')
-        })
-    },
     retrieveSavedGreeting() {
       //retrieve greeting
       window.contract
@@ -210,46 +175,6 @@ export default {
           this.savedGreeting = greetingFromContract
           this.newGreeting = greetingFromContract
         })
-    },
-
-    async saveGreeting() {
-      // fired on form submit button used to update the greeting
-
-      // disable the form while the value gets updated on-chain
-      this.$refs.fieldset.disabled = true
-
-      try {
-        
-        // make an update call to the smart contract
-        console.log(window.contract, 'CONTRACT')
-        await window.contract.set_greeting({
-          account_id: window.accountId,
-          // pass the new greeting
-          message: this.newGreeting,
-        })
-      } catch (e) {
-        alert(
-          "Something went wrong! " +
-            "Maybe you need to sign out and back in? " +
-            "Check your browser console for more info."
-        )
-        throw e //re-throw
-      } finally {
-        // re-enable the form, whether the call succeeded or failed
-        this.$refs.fieldset.disabled = false
-      }
-
-      // update savedGreeting with persisted value
-      this.savedGreeting = this.newGreeting
-
-      this.notificationVisible = true //show new notification
-
-      // remove Notification again after css animation completes
-      // this allows it to be shown again next time the form is submitted
-      setTimeout(() => {
-        this.notificationVisible = false
-      }, 11000)
-
     },
 
     logout: logout,
@@ -266,6 +191,13 @@ export default {
 
 .nft-cards__item {
   margin-bottom: 30px;
+  cursor: pointer;
+  transition: transform .1s ease-in-out, box-shadow .1s ease;
+}
+
+.nft-cards__item.chosen-card {
+  box-shadow: -1px 2px 1px 7px rgba(127, 251, 255, 0.7);
+  transform: scale(0.92);
 }
 
 .nft-cards__media {

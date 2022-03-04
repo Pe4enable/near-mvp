@@ -4,7 +4,7 @@ use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{
-    env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue
+    env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue, assert_one_yocto
 };
 
 use crate::internal::*;
@@ -25,6 +25,9 @@ mod nft_core;
 mod royalty; 
 mod events;
 mod greeting;
+
+// pub mod event;
+// pub use event::NearEvent;
 
 /// This spec can be treated like a version of the standard.
 pub const NFT_METADATA_SPEC: &str = "nft-1.0.0";
@@ -113,4 +116,43 @@ impl Contract {
         //return the Contract object
         this
     }
+
+    // #[payable]
+    // pub fn nft_burn(&mut self, token_id: TokenId) {
+    //     assert_one_yocto();
+
+    //     let owner_id = self.tokens_by_id.get(&token_id).unwrap();
+    //     assert_eq!(
+    //         owner_id,
+    //         env::predecessor_account_id(),
+    //         "Token owner only"
+    //     );
+
+    //     // if let Some(next_approval_id_by_id) = &mut self.tokens.next_approval_id_by_id {
+    //     //     next_approval_id_by_id.remove(&token_id);
+    //     // }
+
+    //     // if let Some(approvals_by_id) = &mut self.tokens.approvals_by_id {
+    //     //     approvals_by_id.remove(&token_id);
+    //     // }
+
+    //     if let Some(tokens_per_owner) = &mut self.tokens_per_owner {
+    //         let mut token_ids = tokens_per_owner.get(&owner_id).unwrap();
+    //         token_ids.remove(&token_id.to_string());
+    //         tokens_per_owner.insert(&owner_id, &token_ids);
+    //     }
+
+    //     // if let Some(token_metadata_by_id) = &mut self.tokens.token_metadata_by_id {
+    //     //     token_metadata_by_id.remove(&token_id);
+    //     // }
+
+    //     self.tokens_by_id.remove(&token_id);
+
+    //     NearEvent::log_nft_burn(
+    //         owner_id,
+    //         vec![token_id],
+    //         None,
+    //         None,
+    //     );
+    // }
 }

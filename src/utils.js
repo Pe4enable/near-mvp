@@ -3,7 +3,7 @@ import getConfig from './config'
 
 const nearConfig = getConfig(process.env.NODE_ENV || 'development')
 
-console.log(nearConfig, 'nearConfig');
+console.log(nearConfig, 'nearConfig')
 
 // Initialize contract & set global variables
 export async function initContract() {
@@ -22,7 +22,7 @@ export async function initContract() {
     // View methods are read only. They don't modify the state, but usually return some value.
     viewMethods: ['get_greeting', 'nft_total_supply', 'nft_supply_for_owner', 'nft_metadata', 'nft_token', 'nft_tokens_for_owner'],
     // Change methods can modify the state. But you don't receive the returned value when called.
-    changeMethods: ['set_greeting', 'nft_mint'],
+    changeMethods: ['set_greeting', 'nft_mint', 'nft_transfer', 'nft_transfer_call', 'nft_approve', 'nft_burn'],
   })
 }
 

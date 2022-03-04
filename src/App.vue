@@ -1,15 +1,14 @@
 <template>
   <div id="root">
-    <SignedOut v-show="!isSignedIn" />
-    <SignedIn v-show="isSignedIn" />
+    <nav-bar />
+    <router-view />
   </div>
 </template>
 
 <script>
 import "./global.css"
+import NavBar from './components/NavBar.vue'
 import getConfig from "./config"
-import SignedOut from "./components/SignedOut.vue"
-import SignedIn from "./components/SignedIn.vue"
 
 const nearConfig = getConfig(process.env.NODE_ENV || "development")
 console.log(
@@ -18,13 +17,21 @@ console.log(
 window.networkId = nearConfig.networkId
 
 export default {
-  created() {
-    document.title = "nft-example.near_testing.testnet"
-  },
   name: "App",
   components: {
-    SignedOut,
-    SignedIn,
+    NavBar,
+  },
+
+  created() {
+    document.title = "nft-example.near_testing.testnet"
+
+    if (this.isSignedIn) {
+      this.$store.dispatch('setCurrentContract', window.contract)
+      this.$store.dispatch('setAccountId', window.accountId)
+
+      // getting all NFTs of currently signed user
+      this.$store.dispatch('getListOfNFT')
+    }
   },
 
   async beforeMount() {
