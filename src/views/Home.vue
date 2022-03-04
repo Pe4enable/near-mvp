@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import { login } from "../utils"
+import { login } from "../nearConfig"
 
 export default {
   name: "SignedOut",

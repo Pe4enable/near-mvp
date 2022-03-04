@@ -4,7 +4,7 @@ import store from './store'
 import router from './router'
 import Notifications from 'vue-notification'
 
-import { initContract } from "./utils"
+import { initContract } from "./nearConfig"
 
 Vue.config.productionTip = false
 Vue.use(Notifications)

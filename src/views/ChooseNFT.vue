@@ -63,7 +63,6 @@
 <script>
 import EffectCards from "../components/EffectCards.vue"
 import Notification from "../components/Notification.vue"
-import { logout } from "../utils"
 import { mapGetters } from "vuex"
 
 
@@ -176,8 +175,6 @@ export default {
           this.newGreeting = greetingFromContract
         })
     },
-
-    logout: logout,
   },
 }
 </script>

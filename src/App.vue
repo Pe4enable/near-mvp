@@ -8,7 +8,7 @@
 <script>
 import "./global.css"
 import NavBar from './components/NavBar.vue'
-import getConfig from "./config"
+import getConfig from "./nearNets"
 
 const nearConfig = getConfig(process.env.NODE_ENV || "development")
 console.log(
