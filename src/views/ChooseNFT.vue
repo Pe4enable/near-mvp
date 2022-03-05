@@ -113,8 +113,11 @@ export default {
 
       // need smart contracts for bundling NFT
       if (this.nftObj.token_id && this.nftObj.token_id.length > 0) {
-        if (item.tokenId === this.nftObj.token_id[0]) {
+        if (item.token_id === this.nftObj.token_id[0]) {
           this.nftObj.token_id.splice(index, 1)
+        } else {
+          this.nftObj.token_id.splice(index, 1)
+          this.nftObj.token_id.push(item.token_id)
         }
       } else {
         this.nftObj.token_id.push(item.token_id)

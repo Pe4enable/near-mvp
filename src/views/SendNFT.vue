@@ -3,7 +3,7 @@
     <div v-if="getNftsAreLoading" class="loading-container">
       <spinner :size="92" color="#000" />
     </div>
-    <main>
+    <main v-else>
       <transition name="fade">
         <div v-if="nftObj.token_id && nftObj.token_id.length">
           <h1 class="h1--no-logo">Send NFTs</h1>
