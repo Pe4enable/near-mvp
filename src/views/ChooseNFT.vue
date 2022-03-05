@@ -1,14 +1,11 @@
 <template>
-  <div>
-    <main>
+  <div class="page">
+    <div v-if="getNftsAreLoading" class="loading-container">
+      <spinner :size="92" color="#000" />
+    </div>
+    <main v-else>
       <h1>Create new NFT</h1>
-      <form class="form-nft" @submit.prevent="createNft">
-        <input
-          type="text"
-          placeholder="token ID"
-          class="input form-nft__input"
-          v-model="nftObj.token_id"
-        >
+      <form class="form-nft" @submit.prevent="createNewNFT">
         <input
           type="text"
           placeholder="NFT title"
@@ -29,9 +26,15 @@
         >
         <button class="btn-main" type="submit">Submit</button>
       </form>
-      <h1 class="h1--no-logo">{{accountId}} account NFTs</h1>
+      <h1 class="h1--no-logo">Choose NFT and apply effect</h1>
       <div class="nft-cards">
-        <div class="nft-cards__item" v-for="(item, key) in getAllNFTs" :key="key">
+        <div
+          v-for="(item, key) in getAllNFTs"
+          :key="key"
+          class="nft-cards__item"
+          :class="{ 'chosen-card': cardClass(item.token_id)}"
+          @click="chooseNFT(item)"
+        >
           <img :src="item.metadata.media" class="nft-cards__media">
         </div>
       </div>
@@ -48,46 +51,37 @@
         <button class="btn-main" @click="handleMint">Submit</button>
       </div>
     </main>
-
-    <Notification
-      v-show="notificationVisible"
-      ref="notification"
-      :networkId="networkId"
-      :msg="'called method: setGreeting'"
-      :contractId="contractId"
-      :visible="false"
-    />
   </div>
 </template>
 
 <script>
-import EffectCards from "../components/EffectCards.vue"
-import Notification from "../components/Notification.vue"
+import EffectCards from "../components/EffectCards/EffectCards.vue"
+import Spinner from "../components/Spinner"
 import { mapGetters } from "vuex"
 
 
 export default {
-  name: "SignedIn",
+  name: "ChooseNFT",
 
   async mounted() {
     await this.$store.dispatch("setEffects")
   },
 
   components: {
-    Notification,
     EffectCards,
+    Spinner
   },
 
   data() {
     return {
       nftObj: {
-        token_id: 'token-2',
         metadata: {
           title: 'NFT token 2 title',
           description: 'NFT token 2 description',
           media: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/VitalikButerinProfile.jpg/1200px-VitalikButerinProfile.jpg',
         },
         receiver_id: '',
+        token_id: [],
       },
       savedGreeting: "",
       newGreeting: "",
@@ -101,23 +95,41 @@ export default {
       'getEffectChoice',
       'getEffects',
       'getDeployedPictureMeta',
-      'getAllNFTs'
+      'getAllNFTs',
+      'getNftsAreLoading'
     ]),
-    isSignedIn() {
-      return window.walletConnection ? window.walletConnection.isSignedIn(): false
-    },
     accountId() {
       return window.accountId
     },
-    contractId() {
-      return window.contract ? window.contract.contractId: null
-    },
-    networkId() {
-      return window.networkId
+    cardClass() {
+      return (idx) => this.nftObj.token_id.indexOf(idx) !== -1
     },
   },
 
   methods: {
+    chooseNFT(item) {
+      console.log(item, 'item')
+      const index = this.nftObj.token_id.findIndex((_) => _ === item.token_id)
+
+      // need smart contracts for bundling NFT
+      if (this.nftObj.token_id && this.nftObj.token_id.length > 0) {
+        if (item.tokenId === this.nftObj.token_id[0]) {
+          this.nftObj.token_id.splice(index, 1)
+        }
+      } else {
+        this.nftObj.token_id.push(item.token_id)
+      }
+      
+      this.$store.dispatch('passNFT', item.metadata)
+
+      // Currently approving multiple NFTs is problem, for this need smart contract, bundle approve + bundle sending
+
+      // if (index > -1) {
+      //   this.nftObj.token_id.splice(index, 1)
+      // } else {
+      //   this.nftObj.token_id.push(tokenId)
+      // }
+    },
     async handleMint() {
       // this.$router.push({'name': 'Minting'})
       await this.$store.dispatch('setResult')
@@ -131,49 +143,33 @@ export default {
           copies: 1,
         },
       }
-      this.createRandomNft(obj)
+      this.createNFTWithEffect(obj)
       console.log('handleMint')
     },
     async sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms))
     },
     async chooseEffect(id) {
-      this.$store.dispatch('setEffectChoice', id)
+      if (this.getEffectChoice && id === this.getEffectChoice) {
+        this.$store.dispatch('setEffectChoice', null)
+      } else {
+        this.$store.dispatch('setEffectChoice', id)
+      }
       await this.sleep(5)
     },
-    createRandomNft(obj) {
+    createNFTWithEffect(obj) {
       console.log(obj, 'createNft')
-      window.contract
-        .nft_mint({
-          token_id: obj.token_id,
-          metadata: obj.metadata,
-          receiver_id: window.accountId,
-        }, "300000000000000", '9610000000000000000000')
-        .then((data) => {
-          console.log(data, 'getNftTotal')
-        })
+      this.$store.dispatch('createNewRandomNFT', {
+        token_id: obj.token_id,
+        metadata: obj.metadata,
+      })
     },
-    createNft() {
+    createNewNFT() {
       console.log('createNft')
-      window.contract
-        .nft_mint({
-          token_id: this.nftObj.token_id,
-          metadata: this.nftObj.metadata,
-          receiver_id: window.accountId,
-        }, "300000000000000", '9610000000000000000000')
-        .then((data) => {
-          console.log(data, 'getNftTotal')
-        })
-    },
-    retrieveSavedGreeting() {
-      //retrieve greeting
-      window.contract
-        .get_greeting({ account_id: window.accountId })
-        .then((greetingFromContract) => {
-          console.log(greetingFromContract, 'greetingFromContract')
-          this.savedGreeting = greetingFromContract
-          this.newGreeting = greetingFromContract
-        })
+      this.$store.dispatch('createNewUsualNFT', {
+        token_id: `token-${Date.now()}`,
+        metadata: this.nftObj.metadata,
+      })
     },
   },
 }
@@ -187,6 +183,7 @@ export default {
 }
 
 .nft-cards__item {
+  width: 17%;
   margin-bottom: 30px;
   cursor: pointer;
   transition: transform .1s ease-in-out, box-shadow .1s ease;

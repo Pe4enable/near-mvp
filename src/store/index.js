@@ -4,6 +4,10 @@ import Vuex from 'vuex'
 import {
   nftTokensForOwner,
   deployNFTtoIPFS,
+  approveNFT,
+  createRandomNft,
+  createUsualNFT,
+  sendNFT,
 } from "../near_utilities"
 
 
@@ -60,6 +64,9 @@ const store = new Vuex.Store({
     setResult (state, blob) {
       state.result = blob
     },
+    setNFTsLoading (state, blob) {
+      state.nftLoading = blob
+    },
     setDeployedPictureMeta (state, meta) {
       state.deployedPictureMeta = meta
     },
@@ -111,7 +118,6 @@ const store = new Vuex.Store({
       commit('setIpfs', await IPFS.create())
     },
     async setEffects ({commit}) {
-      console.log('setEffects')
       commit('setEffects', await getEffects())
     },
     async setResult ({commit, dispatch, getters}) {
@@ -122,11 +128,25 @@ const store = new Vuex.Store({
       dispatch('setStatus', Status.DeployingToIPFS)
       commit('setDeployedPictureMeta', await deployNFTtoIPFS(getters.getIpfs, getters.getResult, getters.getNFTforModification))
     },
-    async getListOfNFT ({commit, getters}) {
-      const result = await nftTokensForOwner(getters.getAccountId, getters.getContract)
+    async getListOfNFT ({commit, dispatch, getters}) {
+      dispatch('setNFTsLoading', true)
+      const result = await nftTokensForOwner({dispatch}, getters.getAccountId, getters.getContract)
       console.log(result, 'result getListOfNFT')
       commit('setNFT', result[2].metadata)
       commit('passAllNFTs', result)
+    },
+    createNewRandomNFT ({getters},  { token_id, metadata }) {
+      createRandomNft(token_id, metadata, getters.getAccountId, getters.getContract)
+    },
+    createNewUsualNFT ({getters},  { token_id, metadata }) {
+      console.log(token_id, metadata, 'result createNewUsualNFT')
+      createUsualNFT(token_id, metadata, getters.getAccountId, getters.getContract)
+    },
+    setNFTApproveId ({getters}, token_id) {
+      approveNFT(getters.getAccountId, token_id, getters.getContract)
+    },
+    sendNFTByToken ({getters}, { receiver, token_id }) {
+      sendNFT(receiver, token_id, getters.getContract)
     },
   },
   getters: {
@@ -142,6 +162,9 @@ const store = new Vuex.Store({
     getAccountId: state => state.account_id,
     getContract: state => state.contract,
     getAllNFTs: state => state.allNFTs,
+    getNFTforModification: (state) => {
+      return state.NFT
+    }
   }
 })
 

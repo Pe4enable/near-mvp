@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { logout } from "../nearConfig"
+import { logout } from "../../nearConfig"
 
 export default {
   name: "NavBar",

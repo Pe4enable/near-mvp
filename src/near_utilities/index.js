@@ -1,27 +1,107 @@
 const CID = require('cids')
+import Vue from 'vue'
 
-export async function nftTokensForOwner(account_id, contract) {
+// for creating new NFTs with EFFECTS
+export function createRandomNft(token_id, metadata, receiver_id, contract) {
+  try {
+    contract
+      .nft_mint({
+        token_id,
+        metadata,
+        receiver_id,
+      }, "300000000000000", '9610000000000000000000')
+  } catch(err) {
+    console.error(err, '')
+    Vue.notify({
+      group: 'foo',
+      title: 'Important message',
+      text: `Error - ${err}`,
+    })
+  }
+}
+
+// for creating new NFTs BY inputs FORM
+export function createUsualNFT(token_id, metadata, receiver_id, contract) {
+  try {
+    contract
+      .nft_mint({
+        token_id,
+        metadata,
+        receiver_id,
+      }, "300000000000000", '9610000000000000000000')
+      .then((data) => {
+        console.log(data, 'getNftTotal')
+      })
+  } catch(err) {
+    console.error(err, '')
+    Vue.notify({
+      group: 'foo',
+      title: 'Important message',
+      text: `Error - ${err}`,
+    })
+  }
+}
+
+export async function nftTokensForOwner({dispatch}, account_id, contract) {
   let NFTs = []
   try {
     await contract
       .nft_tokens_for_owner({ account_id, limit: 30 })
       .then((data) => NFTs = data)
+
+    dispatch('setNFTsLoading', false)
   } catch(err) {
     console.error(err, '')
+    Vue.notify({
+      group: 'foo',
+      title: 'Important message',
+      text: `Cant load Owner NFTs. Error - ${err}`,
+    })
   }
 
   return NFTs
 }
 
 export function approveNFT(account_id, token_id, contract) {
-  contract
-    .nft_approve({
-      account_id,
-      token_id,
-    }, "300000000000000", '12610000000000000000000')
-    .then((data) => {
-      console.log(data, 'approveNFT')
+  try {
+    contract
+      .nft_approve({
+        account_id,
+        token_id,
+      }, "300000000000000", '520000000000000000000')
+      .then((data) => {
+        console.log(data, 'approveNFT')
+      })
+  } catch(err) {
+    console.error(err, '')
+    Vue.notify({
+      group: 'foo',
+      title: 'Important message',
+      text: `Error - ${err}`,
     })
+  }
+}
+
+export function sendNFT(receiver_id, token_id, contract) {
+  try {
+    contract
+      .nft_transfer({
+        receiver_id,
+        token_id,
+        approval_id: 0,
+        memo: 'testing'
+      }, "300000000000000", '1')
+      .then((data) => {
+        console.log(data, 'nftTokensForOwner')
+      })
+  } catch(err) {
+    console.error(err, '')
+    Vue.notify({
+      group: 'foo',
+      title: 'Important message',
+      text: `Error - ${err}`,
+    })
+  }
 }
 
 // currently unavailable
@@ -40,33 +120,38 @@ export function approveNFT(account_id, token_id, contract) {
 
 // just for tests
 export function nftTokendata(contract, token_id) {
-  contract
-    .nft_token({ token_id })
-    .then((data) => {
-      console.log(data, 'nftTokendata')
+  try {
+    contract
+      .nft_token({ token_id })
+      .then((data) => {
+        console.log(data, 'nftTokendata')
+      })
+  } catch(err) {
+    console.error(err, '')
+    Vue.notify({
+      group: 'foo',
+      title: 'Important message',
+      text: `Error - ${err}`,
     })
+  }
 }
 
 // just for tests
 export function nftMetadata(contract) {
-  contract
-    .nft_metadata()
-    .then((data) => {
-      console.log(data, 'nftMetadata')
+  try {
+    contract
+      .nft_metadata()
+      .then((data) => {
+        console.log(data, 'nftMetadata')
+      })
+  } catch(err) {
+    console.error(err, '')
+    Vue.notify({
+      group: 'foo',
+      title: 'Important message',
+      text: `Error - ${err}`,
     })
-}
-
-export function sendNFT(receiver_id, token_id, contract) {
-  contract
-    .nft_transfer({
-      receiver_id,
-      token_id,
-      approval_id: 0,
-      memo: 'testing'
-    }, "300000000000000", '1')
-    .then((data) => {
-      console.log(data, 'nftTokensForOwner')
-    })
+  }
 }
 
 // todo: make v1 to v2, or rethink v1 for more effective implementation

@@ -18,7 +18,7 @@
 import { login } from "../nearConfig"
 
 export default {
-  name: "SignedOut",
+  name: "Home",
 
   methods: {
     login() {

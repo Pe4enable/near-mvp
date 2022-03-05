@@ -28,7 +28,14 @@ html {
 
 body {
   margin: 0;
-  padding: 1em;
+  padding: 0;
+}
+
+.page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
 }
 
 main {
@@ -51,6 +58,8 @@ h1 {
   background-image: unset;
   padding: 10px 0;
   white-space: nowrap;
+  text-align: left;
+  margin-top: 30px;
 }
 
 a,
