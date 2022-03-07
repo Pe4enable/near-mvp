@@ -16,7 +16,7 @@ export async function initContract() {
 
   // Getting the Account ID. If still unauthorized, it's just empty string
   window.accountId = window.walletConnection.getAccountId()
-  const acc = await near.account("near_testing.testnet")
+  const acc = await near.account(window.accountId)
   const balance = await acc.getAccountBalance()
   const amountInNEAR = utils.format.formatNearAmount(balance.total)
   window.balance = amountInNEAR
