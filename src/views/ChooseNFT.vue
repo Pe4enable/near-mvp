@@ -1,7 +1,9 @@
 <template>
   <div class="page">
-    <div v-if="getNftsAreLoading" class="loading-container">
+    <!-- if minting, applying and deploying to ipfs show prelaoder -->
+    <div v-if="getNftsAreLoading || [0, 2, 3, 4].includes(getStatus)" class="loading-container">
       <spinner :size="92" color="#000" />
+      <h1 class="h1--no-logo">{{ statusText }}</h1>
     </div>
     <main v-else>
       <h1>Create new NFT</h1>
@@ -24,7 +26,10 @@
           class="input form-nft__input"
           v-model="nftObj.metadata.media"
         >
-        <button class="btn-main" type="submit">Submit</button>
+        <button
+          class="btn-main"
+          type="submit"
+        >Submit</button>
       </form>
       <h1 class="h1--no-logo">Choose NFT and apply effect</h1>
       <div class="nft-cards">
@@ -40,7 +45,10 @@
       </div>
       <h1 class="h1--no-logo">NFT effects</h1>
 
-      <div class="effect-cards">
+      <div
+        class="effect-cards"
+        v-if="getEffects && getEffects.length"
+      >
         <effect-cards
           @cardClicked="chooseEffect"
           content-type="video"
@@ -50,6 +58,10 @@
         ></effect-cards>
         <button class="btn-main" @click="handleMint">Submit</button>
       </div>
+      <div v-else class="loading-container">
+        <spinner :size="92" color="#000" />
+        <h1 class="h1--no-logo">{{ statusText }}</h1>
+      </div>
     </main>
   </div>
 </template>
@@ -57,7 +69,8 @@
 <script>
 import EffectCards from "../components/EffectCards/EffectCards.vue"
 import Spinner from "../components/Spinner"
-import { mapGetters } from "vuex"
+import { mapGetters, mapActions } from "vuex"
+import { Status } from "../store"
 
 
 export default {
@@ -74,6 +87,7 @@ export default {
 
   data() {
     return {
+      Status,
       nftObj: {
         metadata: {
           title: 'NFT token 2 title',
@@ -96,7 +110,8 @@ export default {
       'getEffects',
       'getDeployedPictureMeta',
       'getAllNFTs',
-      'getNftsAreLoading'
+      'getNftsAreLoading',
+      'getStatus',
     ]),
     accountId() {
       return window.accountId
@@ -104,9 +119,48 @@ export default {
     cardClass() {
       return (idx) => this.nftObj.token_id.indexOf(idx) !== -1
     },
+    statusText() {
+      switch (this.getStatus) {
+      case this.Status.Approving:
+        return "Redirecting to Approve NFT"
+      case this.Status.Applying:
+        return "Applying the chosen effect..."
+      case this.Status.DeployingToIPFS:
+        return "Uploading the result to IPFS..."
+      case this.Status.Minting:
+        return "NFT Minting..."
+      case this.Status.Minted:
+        return "NFT successfully Minted!"
+      default:
+        return ""
+      }
+    },
+  },
+
+  watch: {
+    getStatus: {
+      handler(value) {
+        this.$notify({
+          group: 'foo',
+          type: value < 5 ? 'info' : 'success',
+          title: 'Status:',
+          text: this.statusText,
+          duration: 5000,
+        })
+      },
+    },
   },
 
   methods: {
+    ...mapActions([
+      'setResult',
+      'passNFT',
+      'setDeployedPictureMeta',
+      'setEffectChoice',
+      'createNewRandomNFT',
+      'createNewUsualNFT',
+    ]),
+    // choosing NFT for applying effects
     chooseNFT(item) {
       console.log(item, 'item')
       const index = this.nftObj.token_id.findIndex((_) => _ === item.token_id)
@@ -123,7 +177,7 @@ export default {
         this.nftObj.token_id.push(item.token_id)
       }
       
-      this.$store.dispatch('passNFT', item.metadata)
+      this.passNFT(item.metadata)
 
       // Currently approving multiple NFTs is problem, for this need smart contract, bundle approve + bundle sending
 
@@ -133,10 +187,11 @@ export default {
       //   this.nftObj.token_id.push(tokenId)
       // }
     },
+    // minting NFT with NEW effects
     async handleMint() {
       // this.$router.push({'name': 'Minting'})
-      await this.$store.dispatch('setResult')
-      await this.$store.dispatch('setDeployedPictureMeta')
+      await this.setResult()
+      await this.setDeployedPictureMeta()
       const obj = {
         token_id: `token-${Date.now()}`,
         metadata: {
@@ -154,22 +209,22 @@ export default {
     },
     async chooseEffect(id) {
       if (this.getEffectChoice && id === this.getEffectChoice) {
-        this.$store.dispatch('setEffectChoice', null)
+        this.setEffectChoice(null)
       } else {
-        this.$store.dispatch('setEffectChoice', id)
+        this.setEffectChoice(id)
       }
       await this.sleep(5)
     },
     createNFTWithEffect(obj) {
       console.log(obj, 'createNft')
-      this.$store.dispatch('createNewRandomNFT', {
+      this.createNewRandomNFT({
         token_id: obj.token_id,
         metadata: obj.metadata,
       })
     },
     createNewNFT() {
       console.log('createNft')
-      this.$store.dispatch('createNewUsualNFT', {
+      this.createNewUsualNFT({
         token_id: `token-${Date.now()}`,
         metadata: this.nftObj.metadata,
       })

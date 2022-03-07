@@ -1,7 +1,8 @@
 <template>
   <div class="page">
-    <div v-if="getNftsAreLoading" class="loading-container">
+    <div v-if="getNftsAreLoading || getStatus === 1" class="loading-container">
       <spinner :size="92" color="#000" />
+      <h1 class="h1--no-logo">{{ statusText }}</h1>
     </div>
     <main v-else>
       <transition name="fade">
@@ -17,7 +18,11 @@
               v-model="nftObj.receiver_id"
             >
             <div class="form-nft__bottom">
-              <button class="btn-main" @click="approveNFTHandler">Approve</button>
+              <button
+                class="btn-main"
+                @click="approveNFTHandler"
+                :disabled="!isNFTApproved"
+              >Approve</button>
               <button
                 class="btn-main"
                 type="submit"
@@ -46,7 +51,8 @@
 
 <script>
 import Spinner from "../components/Spinner"
-import { mapGetters } from "vuex"
+import { mapGetters, mapActions } from "vuex"
+import { Status } from "../store"
 
 export default {
   name: "SendNFT",
@@ -57,6 +63,7 @@ export default {
 
   data() {
     return {
+      Status,
       nftObj: {
         receiver_id: 'near_testing2.testnet',
         token_id: [],
@@ -67,7 +74,8 @@ export default {
   computed: {
     ...mapGetters([
       'getAllNFTs',
-      'getNftsAreLoading'
+      'getNftsAreLoading',
+      'getStatus',
     ]),
     cardClass() {
       return (idx) => this.nftObj.token_id.indexOf(idx) !== -1
@@ -79,9 +87,42 @@ export default {
         return getKeyLength === 0
       })
     },
+    statusText() {
+      switch (this.getStatus) {
+      case this.Status.Approving:
+        return "Redirecting to Approve NFT Transaction"
+      case this.Status.Applying:
+        return "Applying the chosen effect..."
+      case this.Status.DeployingToIPFS:
+        return "Uploading the result to IPFS..."
+      case this.Status.Minting:
+        return "Minting..."
+      case this.Status.Minted:
+        return "Minted!"
+      case this.Status.Approved:
+        return "NFT transaction Succeded"
+      default:
+        return ""
+      }
+    },
+  },
+
+  watch: {
+    getStatus: {
+      handler(value) {
+        this.$notify({
+          group: 'foo',
+          type: value < 5 ? 'info' : 'success',
+          title: 'Status:',
+          text: `${this.statusText}`,
+          duration: 5000,
+        })
+      },
+    },
   },
 
   methods: {
+    ...mapActions(['setNFTApproveId', 'sendNFTByToken']),
     chooseNFT(tokenId) {
       const index = this.nftObj.token_id.findIndex((_) => _ === tokenId)
 
@@ -104,10 +145,10 @@ export default {
     },
     approveNFTHandler() {
       console.log('approve')
-      this.$store.dispatch('setNFTApproveId', this.nftObj.token_id[0])
+      this.setNFTApproveId(this.nftObj.token_id[0])
     },
     sendNFTHandler() {
-      this.$store.dispatch('sendNFTByToken', { receiver: this.nftObj.receiver_id , token_id: this.nftObj.token_id[0]})
+      this.sendNFTByToken({ receiver: this.nftObj.receiver_id , token_id: this.nftObj.token_id[0]})
     }
   },
 }

@@ -27,7 +27,8 @@ export const Status = Object.freeze({
   DeployingToIPFS: 2,
   DeployedToIPFS: 3,
   Minting: 4,
-  Minted: 5
+  Minted: 5,
+  Approved: 6,
 })
 
 const store = new Vuex.Store({
@@ -135,17 +136,21 @@ const store = new Vuex.Store({
       commit('setNFT', result[2].metadata)
       commit('passAllNFTs', result)
     },
-    createNewRandomNFT ({getters},  { token_id, metadata }) {
+    createNewRandomNFT ({getters, dispatch},  { token_id, metadata }) {
+      dispatch('setStatus', Status.Minting)
       createRandomNft(token_id, metadata, getters.getAccountId, getters.getContract)
     },
-    createNewUsualNFT ({getters},  { token_id, metadata }) {
+    createNewUsualNFT ({getters, dispatch},  { token_id, metadata }) {
       console.log(token_id, metadata, 'result createNewUsualNFT')
+      dispatch('setStatus', Status.Minting)
       createUsualNFT(token_id, metadata, getters.getAccountId, getters.getContract)
     },
-    setNFTApproveId ({getters}, token_id) {
+    setNFTApproveId ({getters, dispatch}, token_id) {
+      dispatch('setStatus', Status.Approving)
       approveNFT(getters.getAccountId, token_id, getters.getContract)
     },
-    sendNFTByToken ({getters}, { receiver, token_id }) {
+    sendNFTByToken ({getters, dispatch}, { receiver, token_id }) {
+      dispatch('setStatus', Status.Approving)
       sendNFT(receiver, token_id, getters.getContract)
     },
   },
@@ -162,9 +167,7 @@ const store = new Vuex.Store({
     getAccountId: state => state.account_id,
     getContract: state => state.contract,
     getAllNFTs: state => state.allNFTs,
-    getNFTforModification: (state) => {
-      return state.NFT
-    }
+    getNFTforModification: (state) => state.NFT
   }
 })
 

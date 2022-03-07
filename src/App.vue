@@ -9,6 +9,7 @@
 <script>
 import NavBar from './components/NavBar/NavBar.vue'
 import getConfig from "./nearNets"
+import { mapActions } from "vuex"
 
 const nearConfig = getConfig(process.env.NODE_ENV || "development")
 console.log(
@@ -26,16 +27,26 @@ export default {
     document.title = "nft-example.near_testing.testnet"
 
     if (this.isSignedIn) {
-      this.$store.dispatch('setCurrentContract', window.contract)
-      this.$store.dispatch('setAccountId', window.accountId)
+      this.setCurrentContract(window.contract)
+      this.setAccountId(window.accountId)
 
       // getting all NFTs of currently signed user
-      this.$store.dispatch('getListOfNFT')
+      this.getListOfNFT()
     }
   },
 
   async beforeMount() {
-    await this.$store.dispatch('setIpfs')
+    await this.setIpfs()
+  },
+
+  methods: {
+    ...mapActions([
+      'setCurrentContract',
+      'setAccountId',
+      'getListOfNFT',
+      'setIpfs',
+      'setStatus',
+    ]),
   },
 
   computed: {

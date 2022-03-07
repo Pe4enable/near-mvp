@@ -35,7 +35,6 @@ $target-scale: .55;
 $min-scale: .37;
 
 $animationDuration: 1s;
-
 .spinner-dots {
   font-size: 0;
   text-align: center;
