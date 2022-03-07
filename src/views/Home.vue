@@ -22,7 +22,6 @@ export default {
 
   methods: {
     login() {
-      console.log("calling utils.login")
       login()
     },
   },

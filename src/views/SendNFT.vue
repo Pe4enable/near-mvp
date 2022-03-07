@@ -144,7 +144,6 @@ export default {
       // }
     },
     approveNFTHandler() {
-      console.log('approve')
       this.setNFTApproveId(this.nftObj.token_id[0])
     },
     sendNFTHandler() {

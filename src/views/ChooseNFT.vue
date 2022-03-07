@@ -162,7 +162,6 @@ export default {
     ]),
     // choosing NFT for applying effects
     chooseNFT(item) {
-      console.log(item, 'item')
       const index = this.nftObj.token_id.findIndex((_) => _ === item.token_id)
 
       // need smart contracts for bundling NFT
@@ -216,14 +215,12 @@ export default {
       await this.sleep(5)
     },
     createNFTWithEffect(obj) {
-      console.log(obj, 'createNft')
       this.createNewRandomNFT({
         token_id: obj.token_id,
         metadata: obj.metadata,
       })
     },
     createNewNFT() {
-      console.log('createNft')
       this.createNewUsualNFT({
         token_id: `token-${Date.now()}`,
         metadata: this.nftObj.metadata,
