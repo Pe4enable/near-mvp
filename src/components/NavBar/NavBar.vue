@@ -4,7 +4,10 @@
       <router-link :to="{ name: 'ChooseNFT'}">Create NFT</router-link>
       <router-link :to="{ name: 'SendNFT'}">Send NFT</router-link>
     </nav>
-    <button class="error" style="float: right" @click="logout">Sign out</button>
+    <div class="navbar__acc">
+      <div class="navbar__acc-info">Balance: <b>{{ accBalance }}</b> Near</div>
+      <button class="error" style="float: right" @click="logout">Sign out</button>
+    </div>
   </div>
 </template>
 
@@ -15,11 +18,27 @@ export default {
   name: "NavBar",
   methods: {
     logout: logout,
-  }
+  },
+
+  computed: {
+    accBalance() {
+      return Number(window.balance).toFixed(2)
+    },
+  },
 }
 </script>
 
 <style>
+.navbar__acc {
+  display: flex;
+  align-items: center;
+}
+
+.navbar__acc-info {
+  color: #fff;
+  margin-right: 15px;
+}
+
 .navbar {
   display: flex;
   align-items: center;
