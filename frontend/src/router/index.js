@@ -1,10 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from '../views/Home'
+import Login from '../views/Login'
 import ChooseNFT from "../views/ChooseNFT"
 import SendNFT from "../views/SendNFT"
 const { providers } = require("near-api-js")
-import store, { Status } from "../store"
+import store from "../store"
+import { StatusType } from "../utilities"
 
 const provider = new providers.JsonRpcProvider(
   "https://rpc.testnet.near.org"
@@ -17,8 +18,14 @@ let routes = [
   {
     path: '/',
     name: 'Home',
-    component: Home,
-    meta: { title: 'Do[NFT]' }
+    meta: { title: 'Do[NFT]' },
+    redirect: { name: 'ChooseNFT' },
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login,
+    meta: { title: 'Do[NFT]' },
   },
   {
     path: '/choose_nft',
@@ -52,23 +59,22 @@ async function passResult(txHash, accountId, type) {
 
   if (result.status && 'SuccessValue' in result.status && type === 'send_nft') {
     console.log("Result: 2 ", result)
-    // store.dispatch.setStatus(Status.Approved)
-    store.dispatch('setStatus', Status.Approved)
+    store.dispatch('setStatus', StatusType.Approved)
   }
 
   if (result.status && 'SuccessValue' in result.status && type === 'choose_nft') {
     console.log("Result: 2 ", result)
-    // store.dispatch.setStatus(Status.Approved)
-    store.dispatch('setStatus', Status.Minted)
+    store.dispatch('setStatus', StatusType.Minted)
   }
 }
 
+// checking for auth require, depend on it, going to next route
 router.beforeEach((to, _from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
   const user = window.walletConnection.isSignedIn()
 
   if (requiresAuth && !user) {
-    next('/')
+    next('/login')
     Vue.notify({
       group: 'foo',
       title: 'Important message',
@@ -82,6 +88,7 @@ router.beforeEach((to, _from, next) => {
   const account_id = window.accountId
   const url = new URL(document.location)
   const tx_hash = url.searchParams.get('transactionHashes')
+  console.log("Result: 2 ", this)
 
   if (tx_hash && to.name === 'SendNFT') {
     router.push({ name: 'SendNFT' })

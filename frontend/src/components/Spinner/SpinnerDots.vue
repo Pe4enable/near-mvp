@@ -54,11 +54,11 @@ $animationDuration: 1s;
 }
 
 .spinner-dots .bounce1 {
-  animation-delay: -($animationDuration/3);
+  animation-delay: -(calc($animationDuration / 3));
 }
 
 .spinner-dots .bounce2 {
-  animation-delay: -($animationDuration/6);
+  animation-delay: -(calc($animationDuration / 6));
 }
 
 @-webkit-keyframes sk-bouncedelay {

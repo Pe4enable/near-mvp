@@ -8,3 +8,15 @@ export function placeholder() {
 export function getImageURLFromObject(obj) {
   return obj?.animation_url || obj?.image
 }
+export const StatusType = Object.freeze({
+  Error: -3,
+  Cancelled: -2,
+  ChoosingParameters: -1,
+  Applying: 0,
+  Approving: 1,
+  DeployingToIPFS: 2,
+  DeployedToIPFS: 3,
+  Minting: 4,
+  Minted: 5,
+  Approved: 6,
+})

@@ -70,15 +70,11 @@
 import EffectCards from "../components/EffectCards/EffectCards.vue"
 import Spinner from "../components/Spinner"
 import { mapGetters, mapActions } from "vuex"
-import { Status } from "../store"
+import { StatusType } from "../utilities"
 
 
 export default {
   name: "ChooseNFT",
-
-  async mounted() {
-    await this.$store.dispatch("setEffects")
-  },
 
   components: {
     EffectCards,
@@ -87,12 +83,11 @@ export default {
 
   data() {
     return {
-      Status,
       nftObj: {
         metadata: {
           title: 'NFT token 2 title',
           description: 'NFT token 2 description',
-          media: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/VitalikButerinProfile.jpg/1200px-VitalikButerinProfile.jpg',
+          media: '',
         },
         receiver_id: '',
         token_id: [],
@@ -121,15 +116,15 @@ export default {
     },
     statusText() {
       switch (this.getStatus) {
-      case this.Status.Approving:
+      case StatusType.Approving:
         return "Redirecting to Approve NFT"
-      case this.Status.Applying:
+      case StatusType.Applying:
         return "Applying the chosen effect..."
-      case this.Status.DeployingToIPFS:
+      case StatusType.DeployingToIPFS:
         return "Uploading the result to IPFS..."
-      case this.Status.Minting:
+      case StatusType.Minting:
         return "NFT Minting..."
-      case this.Status.Minted:
+      case StatusType.Minted:
         return "NFT successfully Minted!"
       default:
         return ""
@@ -151,6 +146,10 @@ export default {
     },
   },
 
+  mounted() {
+    this.setEffects()
+  },
+
   methods: {
     ...mapActions([
       'setResult',
@@ -159,6 +158,7 @@ export default {
       'setEffectChoice',
       'createNewRandomNFT',
       'createNewUsualNFT',
+      'setEffects',
     ]),
     // choosing NFT for applying effects
     chooseNFT(item) {

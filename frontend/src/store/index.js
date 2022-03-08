@@ -11,25 +11,13 @@ import {
 } from "../near_utilities"
 
 
+import {StatusType} from "../utilities"
 import {getEffects, modifyPicture} from "../api"
-// import {BigNumber} from "ethers";
+
+// too heavy, this one adding 2mb to builded bundle-js (total 2.5mb)
 import * as IPFS from "ipfs-core"
-// import {getImageURLFromObject} from "../utilities";
 
 Vue.use(Vuex)
-
-export const Status = Object.freeze({
-  Error: -3,
-  Cancelled: -2,
-  ChoosingParameters: -1,
-  Applying: 0,
-  Approving: 1,
-  DeployingToIPFS: 2,
-  DeployedToIPFS: 3,
-  Minting: 4,
-  Minted: 5,
-  Approved: 6,
-})
 
 const store = new Vuex.Store({
   state: {
@@ -47,7 +35,7 @@ const store = new Vuex.Store({
     globalLoading: false,
     result: null,
     NFT: null,
-    status: Status.ChoosingParameters
+    status: StatusType.ChoosingParameters
   },
   mutations: {
     setIpfs (state, ipfsInstance) {
@@ -122,11 +110,11 @@ const store = new Vuex.Store({
       commit('setEffects', await getEffects())
     },
     async setResult ({commit, dispatch, getters}) {
-      dispatch('setStatus', Status.Applying)
+      dispatch('setStatus', StatusType.Applying)
       commit('setResult', await modifyPicture(getters.getNFTforModification.media, getters.getEffectChoice))
     },
     async setDeployedPictureMeta ({commit, dispatch, getters}) {
-      dispatch('setStatus', Status.DeployingToIPFS)
+      dispatch('setStatus', StatusType.DeployingToIPFS)
       commit('setDeployedPictureMeta', await deployNFTtoIPFS(getters.getIpfs, getters.getResult, getters.getNFTforModification))
     },
     async getListOfNFT ({commit, dispatch, getters}) {
@@ -136,20 +124,20 @@ const store = new Vuex.Store({
       commit('passAllNFTs', result)
     },
     createNewRandomNFT ({getters, dispatch},  { token_id, metadata }) {
-      dispatch('setStatus', Status.Minting)
+      dispatch('setStatus', StatusType.Minting)
       createRandomNft(token_id, metadata, getters.getAccountId, getters.getContract)
     },
     createNewUsualNFT ({getters, dispatch},  { token_id, metadata }) {
       console.log(token_id, metadata, 'result createNewUsualNFT')
-      dispatch('setStatus', Status.Minting)
+      dispatch('setStatus', StatusType.Minting)
       createUsualNFT(token_id, metadata, getters.getAccountId, getters.getContract)
     },
     setNFTApproveId ({getters, dispatch}, token_id) {
-      dispatch('setStatus', Status.Approving)
+      dispatch('setStatus', StatusType.Approving)
       approveNFT(getters.getAccountId, token_id, getters.getContract)
     },
     sendNFTByToken ({getters, dispatch}, { receiver, token_id }) {
-      dispatch('setStatus', Status.Approving)
+      dispatch('setStatus', StatusType.Approving)
       sendNFT(receiver, token_id, getters.getContract)
     },
   },

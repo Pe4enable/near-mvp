@@ -52,16 +52,16 @@ $spinkit-size: 36px;
     height: $width;
     overflow: hidden;
     background-color: currentColor;
-    border-radius: ($width / 2);
+    border-radius: calc($width / 2);
     animation: sk-circleFadeDelay $animation-duration infinite ease-in-out both;
   }
 
   @for $i from 1 through $circle-count {
     .sk-circle#{$i} {
-      transform: rotate(360deg / $circle-count * ($i - 1));
+      transform: rotate(360deg / calc($circle-count * ($i - 1)));
 
       &::before {
-        $a: -$animation-duration + ($i - 1) * $animation-duration/$circle-count;
+        $a: -$animation-duration + calc(($i - 1) * $animation-duration/$circle-count);
         animation-delay: $a;
       }
     }
