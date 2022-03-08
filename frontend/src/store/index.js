@@ -133,7 +133,6 @@ const store = new Vuex.Store({
       dispatch('setNFTsLoading', true)
       const result = await nftTokensForOwner({dispatch}, getters.getAccountId, getters.getContract)
       console.log(result, 'result getListOfNFT')
-      commit('setNFT', result[2].metadata)
       commit('passAllNFTs', result)
     },
     createNewRandomNFT ({getters, dispatch},  { token_id, metadata }) {
