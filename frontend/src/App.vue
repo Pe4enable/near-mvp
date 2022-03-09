@@ -1,7 +1,7 @@
 <template>
   <div id="root">
     <notifications group="foo" />
-    <nav-bar v-if="isSignedIn" />
+    <head-bar v-if="isSignedIn" />
 
     <div class="container">
       <router-view />
@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import NavBar from './components/NavBar/NavBar.vue'
+import HeadBar from './components/HeadBar/HeadBar.vue'
 import getConfig from "./nearNets"
 import { mapActions } from "vuex"
 
@@ -23,7 +23,7 @@ window.networkId = nearConfig.networkId
 export default {
   name: "App",
   components: {
-    NavBar,
+    HeadBar,
   },
 
   created() {

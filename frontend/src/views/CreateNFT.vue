@@ -1,72 +1,34 @@
 <template>
   <div class="page">
-    <!-- <div v-if="getNftsAreLoading || [0, 2, 3, 4].includes(getStatus)" class="loading-container">
-      <spinner :size="92" color="#000" />
-      <h1>{{ statusText }}</h1>
-    </div> -->
-
-    <nav-bar :navigation="getNav"/>
+    <nav-bar :navigation="getNavigation"/>
     <div v-if="getNftsAreLoading || [0, 2, 3, 4].includes(getStatus)" class="loading-container">
       <spinner :size="92" color="#000" />
       <h1>{{ statusText }}</h1>
     </div>
     <main v-else>
-      <!-- <h1>Create new NFT</h1>
-      <form class="form-nft" @submit.prevent="createNewNFT">
-        <input
-          type="text"
-          placeholder="NFT title"
-          class="input form-nft__input"
-          v-model="nftObj.metadata.title"
-        >
-        <input
-          type="text"
-          placeholder="NFT description"
-          class="input form-nft__input"
-          v-model="nftObj.metadata.description"
-        >
-        <input
-          type="text"
-          placeholder="NFT media"
-          class="input form-nft__input"
-          v-model="nftObj.metadata.media"
-        >
-        <button
-          class="btn-main"
-          type="submit"
-        >Submit</button>
-      </form> -->
-      <h1>Choose NFT and apply effect</h1>
-      <div class="nft-cards">
-        <div
-          v-for="(item, key) in getAllNFTs"
-          :key="key"
-          class="nft-cards__item"
-          :class="{ 'chosen-card': cardClass(item.token_id)}"
-          @click="chooseNFT(item)"
-        >
-          <img :src="item.metadata.media" class="nft-cards__media">
+      <h1>Create new NFT</h1>
+      <form class="form-nft">
+        <uploader @selected="setUploadedImg"/>
+        <div class="form-ntf__inputs">
+          <input
+            type="text"
+            placeholder="NFT title"
+            class="input form-nft__input"
+            v-model="nftObj.metadata.title"
+          >
+          <textarea
+            type="text"
+            placeholder="NFT description"
+            class="input form-nft__input form-nft__textarea"
+            v-model="nftObj.metadata.description"
+          />
+          <button
+            class="main-btn"
+            type="submit"
+            @click="createNewNFT"
+          >Submit</button>
         </div>
-      </div>
-      <!-- <h1>NFT effects</h1>
-
-      <div
-        class="effect-cards"
-        v-if="getEffects && getEffects.length"
-      >
-        <effect-cards
-          @cardClicked="chooseEffect"
-          content-type="video"
-          :show-id="false"
-          :cards="getEffects"
-          :choice="[getEffectChoice]"
-        ></effect-cards>
-        <button class="btn-main" @click="handleMint">Submit</button>
-      </div>
-      <div v-else class="loading-container">
-        <spinner :size="92" color="#000" />
-        <h1>{{ statusText }}</h1>
-      </div> -->
+      </form>
     </main>
   </div>
 </template>
@@ -77,14 +39,15 @@ import Spinner from "../components/Spinner"
 import { mapGetters, mapActions } from "vuex"
 import { StatusType } from "../utilities"
 import NavBar from '../components/NavBar/NavBar'
-
+import Uploader from '../components/Uploader/Uploader'
 
 export default {
-  name: "ChooseNFT",
+  name: "CreateNFT",
 
   components: {
     Spinner,
     NavBar,
+    Uploader,
   },
 
   data() {
@@ -98,6 +61,14 @@ export default {
         receiver_id: '',
         token_id: [],
       },
+      savedGreeting: "",
+      newGreeting: "",
+      getNavigation: [
+        {
+          text: 'Back to Gallery',
+          name: 'ChooseNFT',
+        },
+      ],
       notificationVisible: false,
       nftArray: [],
     }
@@ -134,34 +105,6 @@ export default {
         return ""
       }
     },
-    getNav() {
-      return [
-        {
-          text: 'Create New',
-          name: 'CreateNFT',
-          params: null,
-        },
-        {
-          text: 'Send',
-          name: 'SendNFT',
-          params: {
-            id: this.nftObj && this.nftObj.token_id.length === 1 ? this.nftObj.token_id[0] : null
-          },
-        },
-        {
-          text: 'Bundle',
-          name: 'CreateNFT',
-          params: null,
-        },
-        {
-          text: 'Add Effect',
-          name: 'AddEffect',
-          params: {
-            id: this.nftObj && this.nftObj.token_id.length === 1 ? this.nftObj.token_id[0] : null
-          },
-        },
-      ]
-    }
   },
 
   watch: {
@@ -192,6 +135,9 @@ export default {
       'createNewUsualNFT',
       'setEffects',
     ]),
+    setUploadedImg(src) {
+      this.nftObj.metadata.media = src 
+    },
     // choosing NFT for applying effects
     chooseNFT(item) {
       const index = this.nftObj.token_id.findIndex((_) => _ === item.token_id)
@@ -263,31 +209,5 @@ export default {
 </script>
 
 <style>
-.nft-cards {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
-
-.nft-cards__item {
-  width: 17%;
-  margin-bottom: 30px;
-  cursor: pointer;
-  transition: transform .1s ease-in-out, box-shadow .1s ease;
-}
-
-.nft-cards__item.chosen-card {
-  box-shadow: -1px 2px 1px 7px rgba(127, 251, 255, 0.7);
-  transform: scale(0.92);
-}
-
-.nft-cards__media {
-  display: block;
-  width: 200px;
-  height: 200px;
-}
-h1 {
-  margin-bottom: 30px;
-}
 
 </style>

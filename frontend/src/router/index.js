@@ -3,10 +3,12 @@ import Router from 'vue-router'
 import Login from '../views/Login'
 import ChooseNFT from "../views/ChooseNFT"
 import SendNFT from "../views/SendNFT"
-const { providers } = require("near-api-js")
+import CreateNFT from "../views/CreateNFT"
+import AddEffect from "../views/AddEffect"
 import store from "../store"
 import { StatusType } from "../utilities"
 
+const { providers } = require("near-api-js")
 const provider = new providers.JsonRpcProvider(
   "https://rpc.testnet.near.org"
 )
@@ -34,7 +36,19 @@ let routes = [
     meta: { title: 'Do[NFT]', requiresAuth: true }
   },
   {
-    path: '/send_nft',
+    path: '/create_nft',
+    name: 'CreateNFT',
+    component: CreateNFT,
+    meta: { title: 'Do[NFT]', requiresAuth: true }
+  },
+  {
+    path: '/add_effect/:id',
+    name: 'AddEffect',
+    component: AddEffect,
+    meta: { title: 'Do[NFT]', requiresAuth: true }
+  },
+  {
+    path: '/send_nft/:id',
     name: 'SendNFT',
     component: SendNFT,
     meta: { title: 'Do[NFT]', requiresAuth: true }

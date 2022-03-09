@@ -1,11 +1,10 @@
 <template>
-  <div class="navbar">
-    <nav class="navbar__nav">
-      <router-link :to="{ name: 'ChooseNFT'}">Create NFT</router-link>
-      <router-link :to="{ name: 'SendNFT'}">Send NFT</router-link>
+  <div class="headbar">
+    <nav class="headbar__nav">
+      <img src="../../assets/logo.jpg">
     </nav>
-    <div class="navbar__acc">
-      <div class="navbar__acc-info">Balance: <b>{{ accBalance }}</b> Near</div>
+    <div class="headbar__acc">
+      <div class="headbar__acc-info">Balance: <b>{{ accBalance }}</b> Near</div>
       <button class="error" style="float: right" @click="logout">Sign out</button>
     </div>
   </div>
@@ -15,7 +14,7 @@
 import { logout } from "../../nearConfig"
 
 export default {
-  name: "NavBar",
+  name: "HeadBar",
   methods: {
     logout: logout,
   },
@@ -29,17 +28,17 @@ export default {
 </script>
 
 <style>
-.navbar__acc {
+.headbar__acc {
   display: flex;
   align-items: center;
 }
 
-.navbar__acc-info {
+.headbar__acc-info {
   color: #fff;
   margin-right: 15px;
 }
 
-.navbar {
+.headbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -49,29 +48,28 @@ export default {
   right: 0;
   height: 80px;
   padding: 0 15px;
-  background: #000;
+  background: #2d0949;
 }
 
-nav {
+.headbar__nav {
   width: 60%;
   margin-right: auto;
 }
 
-nav a {
+.headbar__nav a {
   position: relative;
   width: 33.333%;
   display: table-cell;
   text-align: center;
   color: #ffffff;
   text-decoration: none;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
   font-weight: bold;
   padding: 10px 20px;
   transition: 0.2s ease color;
 }
 
-nav a:before,
-nav a:after {
+.headbar__nav a:before,
+.headbar__nav a:after {
   content: "";
   position: absolute;
   border-radius: 50%;
@@ -79,41 +77,41 @@ nav a:after {
   transition: 0.2s ease transform;
 }
 
-nav a:before {
+.headbar__nav a:before {
   top: 0;
   left: 10px;
   width: 6px;
   height: 6px;
 }
 
-nav a:after {
+.headbar__nav a:after {
   top: 5px;
   left: 18px;
   width: 4px;
   height: 4px;
 }
 
-nav a:nth-child(1):before {
+.headbar__nav a:nth-child(1):before {
   background-color: yellow;
 }
 
-nav a:nth-child(1):after {
+.headbar__nav a:nth-child(1):after {
   background-color: red;
 }
 
-nav a:nth-child(2):before {
+.headbar__nav a:nth-child(2):before {
   background-color: #00e2ff;
 }
 
-nav a:nth-child(2):after {
+.headbar__nav a:nth-child(2):after {
   background-color: #89ff00;
 }
 
-nav a:nth-child(3):before {
+.headbar__nav a:nth-child(3):before {
   background-color: purple;
 }
 
-nav a:nth-child(3):after {
+.headbar__nav a:nth-child(3):after {
   background-color: palevioletred;
 }
 
@@ -128,21 +126,21 @@ nav a:nth-child(3):after {
   transition: 0.2s ease left;
 }
 
-nav a:hover {
+.headbar__nav a:hover {
   color: #fff;
 }
 
-nav a:hover:before,
-nav a:hover:after {
+.headbar__nav a:hover:before,
+.headbar__nav a:hover:after {
   transform: scale(1);
 }
 
-nav a.router-link-exact-active {
+.headbar__nav a.router-link-exact-active {
   text-decoration: underline;
 }
 
-nav a.router-link-exact-active:before,
-nav a.router-link-exact-active:after {
+.headbar__nav a.router-link-exact-active:before,
+.headbar__nav a.router-link-exact-active:after {
   transform: scale(1);
 }
 </style>

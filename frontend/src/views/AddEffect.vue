@@ -7,37 +7,33 @@
     </div>
     <main v-else>
       <div>
-        <h1 class="h1--no-logo">Send NFTs</h1>
+        <h1 class="h1--no-logo">Selected NFT</h1>
         <div
-          class="form-nft-send"
+          class="nft-cards-box"
         >
           <div
             class="nft-cards"
           >
             <img :src="NFTComputedData.metadata.media" class="form-nft-send__media">
           </div>
-          <div class="form-nft-send__inputs">
-            <input
-              type="text"
-              placeholder="Receiver ID"
-              class="input form-nft__input"
-              v-model="nftObj.receiver_id"
-            >
-            <div class="form-nft__bottom">
-              <button
-                class="main-btn"
-                @click="approveNFTHandler"
-                :disabled="!isNFTApproved"
-              >Approve</button>
-              <button
-                class="main-btn"
-                type="submit"
-                :disabled="isNFTApproved"
-                @click="sendNFTHandler"
-              >Send</button>
-            </div>
-          </div>
         </div>
+      </div>
+      <h1>NFT effects</h1>
+
+      <div
+        class="effect-cards"
+        v-if="getEffects && getEffects.length"
+      >
+        <effect-cards
+          :show-id="false"
+          :cards="getEffects"
+          :choice="[getEffectChoice]"
+        ></effect-cards>
+        <button class="btn-main">Submit</button>
+      </div>
+      <div v-else class="loading-container">
+        <spinner :size="92" color="#000" />
+        <h1>{{ statusText }}</h1>
       </div>
     </main>
   </div>
@@ -48,13 +44,15 @@ import Spinner from "../components/Spinner"
 import { mapGetters, mapActions } from "vuex"
 import { StatusType } from "../utilities"
 import NavBar from '../components/NavBar/NavBar'
+import EffectCards from "../components/EffectCards/EffectCards.vue"
 
 export default {
-  name: "SendNFT",
+  name: "AddEffect",
 
   components: {
     Spinner,
     NavBar,
+    EffectCards,
   },
 
   data() {
@@ -68,11 +66,17 @@ export default {
     }
   },
 
+
+  mounted() {
+    this.setEffects()
+  },
+
   computed: {
     ...mapGetters([
       'getAllNFTs',
       'getNftsAreLoading',
       'getStatus',
+      'getEffects'
     ]),
     getNav() {
       return [
@@ -128,15 +132,6 @@ export default {
         })
       },
     },
-    getAllNFTs: {
-      handler(value) {
-        const data = value.find((item) => item.token_id === this.$route.params.id)
-        console.log(this.$route, 'router')
-        console.log(data, 'data')
-        this.NFTData = data
-        this.nftObj.media = data.metadata.media
-      },
-    },
   },
 
   methods: {
@@ -144,6 +139,7 @@ export default {
       'setNFTApproveId',
       'sendNFTByToken',
       'getNFTByToken',
+      'setEffects',
     ]),
     chooseNFT(tokenId) {
       const index = this.nftObj.token_id.findIndex((_) => _ === tokenId)

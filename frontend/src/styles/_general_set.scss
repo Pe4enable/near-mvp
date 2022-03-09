@@ -7,13 +7,6 @@
 html {
 	--bg: #efefef;
 	--fg: #1e1e1e;
-	--gray: #555;
-	--light-gray: #ccc;
-	--shadow: #e6e6e6;
-	--success: rgb(90, 206, 132);
-	--primary: #FF585D;
-	--secondary: #0072CE;
-
 	background-color: var(--bg);
 	color: var(--fg);
 	font-size: calc(0.9em + 0.5vw);
@@ -49,45 +42,40 @@ body {
 
 .page {
 	display: flex;
-	align-items: center;
-	justify-content: center;
+	align-items: flex-start;
+	justify-content: flex-start;
 	min-height: 100vh;
+	padding-top: 100px;
 }
 
 main {
 	margin: 0 auto;
-	margin-top: 60px;
+	width: 80%;
 }
 
 .container {
+	width: 100%;
 	max-width: 1400px;
 	margin: 0 auto;
 	padding: 0 20px;
 }
 
-h1 {
-	padding: 10px 0;
+h1, h2, h3, h4, h5, h6 {
 	font-family: 'Roboto mono';
-}
-
-h2, h3, h4, h5, h6 {
-	font-family: 'Roboto mono';
+	margin: 0;
 }
 
 a,
 .link {
-	color: var(--primary);
 	text-decoration: none;
 }
 a:hover,
-a:focus,
-.link:hover,
-.link:focus {
-	text-decoration: underline;
+a:focus {
+	text-decoration: none;
 }
-a:active,
-.link:active {
-	color: var(--secondary);
+
+textarea:focus {
+	outline: none;
 }
 
 button, input {
@@ -95,56 +83,50 @@ button, input {
 	outline: none;
 }
 
-button {
-	background-color: var(--secondary);
-	border-radius: 5px;
-	border: none;
+.main-btn {
+	background-color: #2d0949;
+	border: 2px solid #000;
 	color: #efefef;
 	cursor: pointer;
 	padding: 0.3em 0.75em;
-	transition: transform 30ms;
-}
-button.error {
-	background-color: var(--primary);
-	color: #fff;
-}
+	transition: background-color .1s ease-in-out;
+	min-width: 150px;
+	text-align: center;
 
-button:hover, button:focus {
-	box-shadow: 0 0 10em rgba(255, 255, 255, 0.2) inset;
-}
-button:active {
-	box-shadow: 0 0 10em rgba(0, 0, 0, 0.1) inset;
-}
-button.link {
-	background: none;
-	border: none;
-	box-shadow: none;
-	display: inline;
-}
-[disabled] button, button[disabled] {
-	box-shadow: none;
-	background-color: var(--light-gray);
-	color: gray;
-	cursor: not-allowed;
-	transform: none;
-}
-[disabled] button {
-	text-indent: -900em;
-	width: 2em;
-	position: relative;
-}
-[disabled] button:after {
-	content: " ";
-	display: block;
-	width: 0.8em;
-	height: 0.8em;
-	border-radius: 50%;
-	border: 2px solid #fff;
-	border-color: var(--fg) transparent var(--fg) transparent;
-	animation: loader 1.2s linear infinite;
-	position: absolute;
-	top: 0.45em;
-	right: 0.5em;
+	span {
+		color: #efefef;
+	}
+
+	&:hover {
+		color: #000;
+		background-color:rgba(92, 233, 188, 1);
+
+		span {
+			color: #000;
+		}
+	}
+
+	&:focus {
+		background-color:rgba(92, 233, 188, 1);
+	}
+
+	&:disabled {
+		box-shadow: none;
+		background-color: rgba(58, 31, 79, .4);
+		color: #000;
+		cursor: not-allowed;
+		transform: none;
+
+		&:hover {
+			background-color: rgba(58, 31, 79, .4);
+			color: #000;
+	
+			span {
+				color: #000;
+			}
+		}
+	
+	}
 }
 @keyframes loader {
 	0% { transform: rotate(0deg) }
@@ -204,4 +186,30 @@ li {
 
 .home-text__inner__subtext {
 	font-size: 24px;
+}
+
+.form-nft {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.form-ntf__inputs {
+	margin: 0 10px;
+}
+
+.form-nft__input {
+  width: 100%;
+  margin-bottom: 15px;
+	background: #fff;
+	padding: 5px 10px;
+	border: 0;
+	font-size: 20px;
+}
+
+.form-nft__textarea {
+	min-height: 135px;
+}
+
+.form-nft__input:last-child {
+  margin-bottom: 0;
 }
