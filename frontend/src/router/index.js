@@ -76,7 +76,7 @@ async function passResult(txHash, accountId, type) {
     store.dispatch('setStatus', StatusType.Approved)
   }
 
-  if (result.status && 'SuccessValue' in result.status && type === 'choose_nft') {
+  if (result.status && 'SuccessValue' in result.status && ['SendNFT', 'CreateNFT'].includes(type)) {
     console.log("Result: 2 ", result)
     store.dispatch('setStatus', StatusType.Minted)
   }
@@ -104,9 +104,9 @@ router.beforeEach((to, _from, next) => {
   const tx_hash = url.searchParams.get('transactionHashes')
   console.log("Result: 2 ", this)
 
-  if (tx_hash && to.name === 'SendNFT') {
+  if (tx_hash && ['SendNFT', 'ChooseNFT', 'CreateNFT'].includes(to.name)) {
     router.push({ name: 'SendNFT' })
-    passResult(tx_hash, account_id, 'send_nft')
+    passResult(tx_hash, account_id, to.name)
   }
   if (tx_hash && to.name === 'ChooseNFT') {
     console.log(tx_hash, 'tx_hash')

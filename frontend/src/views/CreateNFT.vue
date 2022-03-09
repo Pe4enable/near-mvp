@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <nav-bar :navigation="getNavigation"/>
-    <div v-if="getNftsAreLoading || [0, 2, 3, 4].includes(getStatus)" class="loading-container">
+    <div v-if="[0, 2, 3, 4].includes(getStatus)" class="loading-container">
       <spinner :size="92" color="#000" />
       <h1>{{ statusText }}</h1>
     </div>
@@ -76,19 +76,10 @@ export default {
 
   computed: {
     ...mapGetters([
-      'getEffectChoice',
-      'getEffects',
       'getDeployedPictureMeta',
-      'getAllNFTs',
       'getNftsAreLoading',
       'getStatus',
     ]),
-    accountId() {
-      return window.accountId
-    },
-    cardClass() {
-      return (idx) => this.nftObj.token_id.indexOf(idx) !== -1
-    },
     statusText() {
       switch (this.getStatus) {
       case StatusType.Approving:
@@ -121,87 +112,30 @@ export default {
     },
   },
 
-  mounted() {
-    this.setEffects()
-  },
-
   methods: {
     ...mapActions([
-      'setResult',
-      'passNFT',
-      'setDeployedPictureMeta',
-      'setEffectChoice',
-      'createNewRandomNFT',
       'createNewUsualNFT',
-      'setEffects',
+      'setResult',
+      'setDeployedPictureMeta',
+      'passNFT',
     ]),
     setUploadedImg(src) {
+      console.log(src, 'SRC')
       this.nftObj.metadata.media = src 
+      this.passNFT(this.nftObj.metadata)
     },
-    // choosing NFT for applying effects
-    chooseNFT(item) {
-      const index = this.nftObj.token_id.findIndex((_) => _ === item.token_id)
-
-      // need smart contracts for bundling NFT
-      if (this.nftObj.token_id && this.nftObj.token_id.length > 0) {
-        if (item.token_id === this.nftObj.token_id[0]) {
-          this.nftObj.token_id.splice(index, 1)
-        } else {
-          this.nftObj.token_id.splice(index, 1)
-          this.nftObj.token_id.push(item.token_id)
-        }
-      } else {
-        this.nftObj.token_id.push(item.token_id)
-      }
-      
-      this.passNFT(item.metadata)
-
-      // Currently approving multiple NFTs is problem, for this need smart contract, bundle approve + bundle sending
-
-      // if (index > -1) {
-      //   this.nftObj.token_id.splice(index, 1)
-      // } else {
-      //   this.nftObj.token_id.push(tokenId)
-      // }
-    },
-    // minting NFT with NEW effects
-    async handleMint() {
-      // this.$router.push({'name': 'Minting'})
-      await this.setResult()
-      await this.setDeployedPictureMeta()
-      const obj = {
+    async createNewNFT() {
+      await this.setResult('base64')
+      await this.setDeployedPictureMeta('base64')
+      console.log(this.getDeployedPictureMeta, 'this.getDeployedPictureMeta')
+      this.createNewUsualNFT({
         token_id: `token-${Date.now()}`,
         metadata: {
-          title: 'NFT token title',
-          description: 'NFT token description',
+          title: this.nftObj.metadata.title,
+          description: this.nftObj.metadata.description,
           media: this.getDeployedPictureMeta,
           copies: 1,
         },
-      }
-      this.createNFTWithEffect(obj)
-      console.log('handleMint')
-    },
-    async sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms))
-    },
-    async chooseEffect(id) {
-      if (this.getEffectChoice && id === this.getEffectChoice) {
-        this.setEffectChoice(null)
-      } else {
-        this.setEffectChoice(id)
-      }
-      await this.sleep(5)
-    },
-    createNFTWithEffect(obj) {
-      this.createNewRandomNFT({
-        token_id: obj.token_id,
-        metadata: obj.metadata,
-      })
-    },
-    createNewNFT() {
-      this.createNewUsualNFT({
-        token_id: `token-${Date.now()}`,
-        metadata: this.nftObj.metadata,
       })
     },
   },

@@ -5,7 +5,7 @@
     </nav>
     <div class="headbar__acc">
       <div class="headbar__acc-info">Balance: <b>{{ accBalance }}</b> Near</div>
-      <button class="error" style="float: right" @click="logout">Sign out</button>
+      <button class="main-btn main-btn--exit" style="float: right" @click="logout">Sign out</button>
     </div>
   </div>
 </template>

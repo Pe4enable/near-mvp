@@ -109,13 +109,18 @@ const store = new Vuex.Store({
     async setEffects ({commit}) {
       commit('setEffects', await getEffects())
     },
-    async setResult ({commit, dispatch, getters}) {
+    async setResult ({commit, dispatch, getters}, type) {
       dispatch('setStatus', StatusType.Applying)
-      commit('setResult', await modifyPicture(getters.getNFTforModification.media, getters.getEffectChoice))
+      if (type !== "base64") {
+        commit('setResult', await modifyPicture(getters.getNFTforModification.media, getters.getEffectChoice))
+      }
+
+      console.log('setResult asdasdasd', getters.getNFTforModification.media)
+      commit('setResult', getters.getNFTforModification.media)
     },
-    async setDeployedPictureMeta ({commit, dispatch, getters}) {
+    async setDeployedPictureMeta ({commit, dispatch, getters}, type) {
       dispatch('setStatus', StatusType.DeployingToIPFS)
-      commit('setDeployedPictureMeta', await deployNFTtoIPFS(getters.getIpfs, getters.getResult, getters.getNFTforModification))
+      commit('setDeployedPictureMeta', await deployNFTtoIPFS(getters.getIpfs, getters.getResult, getters.getNFTforModification, type))
     },
     async getListOfNFT ({commit, dispatch, getters}) {
       dispatch('setNFTsLoading', true)

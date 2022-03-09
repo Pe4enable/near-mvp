@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "axios": "^0.26.0",
-    "cids": "^1.1.9",
     "ipfs-core": "^0.12.0",
     "near-api-js": "~0.43.1",
     "vue": "~2.6.11",

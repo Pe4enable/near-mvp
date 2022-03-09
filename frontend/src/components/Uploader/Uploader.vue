@@ -53,7 +53,6 @@ export default {
       const img = event.target.files ? event.target.files[0] : null
       console.log(img, 'files')
       console.log(event, 'event')
-      this.$emit('selected', img)
       this.$refs.inputFile.value = null
       this.updateImage(img)
     },
@@ -68,6 +67,7 @@ export default {
         console.log(this, 'this')
         console.log(event, 'onload event')
         this.imgSource = event.target.result
+        this.$emit('selected', this.imgSource)
       }
       console.log(this.imgSource, 'this.imgSource')
       reader.readAsDataURL(img)

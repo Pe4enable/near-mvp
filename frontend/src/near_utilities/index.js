@@ -1,4 +1,4 @@
-const CID = require('cids')
+import { fromString } from 'uint8arrays/from-string'
 import Vue from 'vue'
 
 // for creating new NFTs with EFFECTS
@@ -155,14 +155,22 @@ export function nftMetadata(contract) {
 }
 
 // todo: make v1 to v2, or rethink v1 for more effective implementation
-async function pushImageToIpfs(ipfsInstance, objectURL) {
-  let blob = await fetch(objectURL).then(r => r.blob())
-  let cid = await ipfsInstance.add((blob), {
-    cidVersion: 1,
-    hashAlg: 'sha2-256'
-  })
-  console.log(cid, 'cid')
-  const cidV1 = new CID(cid.path).toV1().toString('base32')
+async function pushImageToIpfs(ipfsInstance, objectURL, type) {
+  let cid = ''
+  let cidV1 = ''
+  let data = null
+  console.log(type, 'pushImageToIpfs type')
+  await fetch(objectURL)
+    .then(res => {
+      console.log(res, 'buffer res')
+      return res.arrayBuffer()
+    })
+    .then(buffer => {
+      console.log(buffer, 'buffer data')
+      data = new Uint8Array(buffer)
+    })
+  cid = await ipfsInstance.add(data)
+  cidV1 = cid.path
   console.log(cidV1, 'cidV1')
   return cidV1
 }
@@ -173,13 +181,13 @@ async function pushObjectToIpfs(ipfsInstance, object) {
   return cid
 }
 
-export async function deployNFTtoIPFS(ipfsInstance, imageURL, oldMeta) {
-  console.log(ipfsInstance, imageURL, oldMeta, 'deployNFTtoIPFS')
-  let imageCID = await pushImageToIpfs(ipfsInstance, imageURL)
+export async function deployNFTtoIPFS(ipfsInstance, imageURL, oldMeta, type) {
+  console.log(ipfsInstance, imageURL, oldMeta, type, 'deployNFTtoIPFS')
+  let imageCID = await pushImageToIpfs(ipfsInstance, imageURL, type)
   let meta = JSON.parse(JSON.stringify(oldMeta))
   meta.animation_url = `ipfs://${imageCID}`
   let newMetaCID = await pushObjectToIpfs(ipfsInstance, meta)
   console.log(newMetaCID, 'newMetaCID')
   console.log(imageCID, 'imageCID')
-  return `https://${imageCID}.ipfs.dweb.link`
+  return `https://ipfs.io/ipfs/${imageCID}`
 }
