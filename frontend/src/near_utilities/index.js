@@ -1,5 +1,6 @@
-import { fromString } from 'uint8arrays/from-string'
 import Vue from 'vue'
+import untar from "js-untar"
+const CID_RE = /Qm[1-9A-HJ-NP-Za-km-z]{44,}|b[A-Za-z2-7]{58,}|B[A-Z2-7]{58,}|z[1-9A-HJ-NP-Za-km-z]{48,}|F[0-9A-F]{50,}/m
 
 // for creating new NFTs with EFFECTS
 export function createRandomNft(token_id, metadata, receiver_id, contract) {
@@ -186,8 +187,43 @@ export async function deployNFTtoIPFS(ipfsInstance, imageURL, oldMeta, type) {
   let imageCID = await pushImageToIpfs(ipfsInstance, imageURL, type)
   let meta = JSON.parse(JSON.stringify(oldMeta))
   meta.animation_url = `ipfs://${imageCID}`
-  let newMetaCID = await pushObjectToIpfs(ipfsInstance, meta)
-  console.log(newMetaCID, 'newMetaCID')
-  console.log(imageCID, 'imageCID')
+  await pushObjectToIpfs(ipfsInstance, meta)
   return `https://ipfs.io/ipfs/${imageCID}`
+}
+
+export async function getImageForTokenByURI(ipfsInstance, imageAddress) {
+  let image
+  if (imageAddress) {
+    let cid = CID_RE.exec(imageAddress)?.[0]
+    let localImageURL = await getImageFromIpfs(ipfsInstance, cid)
+    image = localImageURL
+  }
+  return image
+}
+
+async function getImageFromIpfs(ipfsInstance, cid) {
+  let blob = null
+  try {
+    blob = await loadFileFromIPFS(ipfsInstance, cid, 6000)
+  } catch (e) {
+    console.log(e)
+  }
+  return blob ? URL.createObjectURL(blob) : null
+}
+
+async function loadFileFromIPFS(ipfs, cid, timeout) {
+  if (cid === "" || cid === null || cid === undefined) {
+    return
+  }
+  let content = []
+  for await (const buff of ipfs.get(cid, {timeout})) {
+    if (buff) {
+      content.push(buff)
+    }
+  }
+  let archivedBlob = new Blob(content, {type: "application/x-tar"})
+  let archiveArrayBuffer = await archivedBlob.arrayBuffer()
+  let archive = (await untar(archiveArrayBuffer))?.[0]
+
+  return archive.blob
 }

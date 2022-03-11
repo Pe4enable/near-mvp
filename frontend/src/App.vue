@@ -30,9 +30,6 @@ export default {
     document.title = "nft-example.near_testing.testnet"
 
     if (this.isSignedIn) {
-      this.setCurrentContract(window.contract)
-      this.setAccountId(window.accountId)
-
       // getting all NFTs of currently signed user
       this.getListOfNFT()
     }

@@ -5,7 +5,7 @@
       <p class="home-text__inner__subtext">Use power of neural network algorithms to create new unique combinations of digital art</p>
       <p class="home-text__inner__subtext">Go ahead and click the button below to try it out:</p>
       <p style="text-align:center; margin-top:2.5em">
-        <button v-on:click="login">Sign in</button>
+        <button class="main-btn" @click="login">Sign in</button>
       </p>
     </div>
     <img src="../assets/home_img.jpg" style="height: 30%;  border-radius:20%;" >

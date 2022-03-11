@@ -1,8 +1,10 @@
 /* eslint sort-imports: 'error' */
 /* eslint sort-keys: 'error' */
+import pencil from '!svg-sprite-loader!@/assets/svg/icon-pencil.svg'
 import upload from '!svg-sprite-loader!@/assets/svg/icon-upload.svg'
 
 const ICONS = {
+  pencil,
   upload,
 }
 

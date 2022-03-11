@@ -15,6 +15,7 @@ export async function getNftInfosByAddress(accountAddress) {
 export async function getEffects() {
   return (await api.get('/effects')).data
 }
+
 export async function modifyPicture (objectURL, effectId) {
   console.log(objectURL, effectId, 'modifyPicture')
   let result = await api.post(`/effects/applyWithImgUrl/${effectId}?img_url=${objectURL}`, "", { 
@@ -29,4 +30,12 @@ export async function modifyPicture (objectURL, effectId) {
   console.log(item, 'objectURL')
 
   return item
+}
+
+export async function getPicture (objectURL, effectId) {
+  console.log(objectURL, effectId, 'modifyPicture')
+  let result = await api.get(`${objectURL}`,)
+  console.log(result, 'RESULT')
+
+  return result.url
 }

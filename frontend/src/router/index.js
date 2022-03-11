@@ -5,6 +5,8 @@ import ChooseNFT from "../views/ChooseNFT"
 import SendNFT from "../views/SendNFT"
 import CreateNFT from "../views/CreateNFT"
 import AddEffect from "../views/AddEffect"
+import AddEffectConfirm from "../views/AddEffectConfirm"
+import NFTDetails from "../views/NFTDetails"
 import store from "../store"
 import { StatusType } from "../utilities"
 
@@ -45,6 +47,18 @@ let routes = [
     path: '/add_effect/:id',
     name: 'AddEffect',
     component: AddEffect,
+    meta: { title: 'Do[NFT]', requiresAuth: true },
+  },
+  {
+    path: '/add_effect/:id/confirm/:effectId',
+    name: 'AddEffectConfirm',
+    component: AddEffectConfirm,
+    meta: { title: 'Do[NFT]', requiresAuth: true }
+  },
+  {
+    path: '/nft_details/:id',
+    name: 'NFTDetails',
+    component: NFTDetails,
     meta: { title: 'Do[NFT]', requiresAuth: true }
   },
   {
@@ -71,6 +85,7 @@ router.afterEach((to, from) => {
 async function passResult(txHash, accountId, type) {
   const result = await provider.txStatus(txHash, accountId)
 
+  console.log(result, 'tx HASH result')
   if (result.status && 'SuccessValue' in result.status && type === 'send_nft') {
     console.log("Result: 2 ", result)
     store.dispatch('setStatus', StatusType.Approved)
@@ -83,9 +98,11 @@ async function passResult(txHash, accountId, type) {
 }
 
 // checking for auth require, depend on it, going to next route
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
   const user = window.walletConnection.isSignedIn()
+  store.dispatch('setCurrentContract', window.contract)
+  store.dispatch('setAccountId', window.accountId)
 
   if (requiresAuth && !user) {
     next('/login')
@@ -104,8 +121,20 @@ router.beforeEach((to, _from, next) => {
   const tx_hash = url.searchParams.get('transactionHashes')
   console.log("Result: 2 ", this)
 
-  if (tx_hash && ['SendNFT', 'ChooseNFT', 'CreateNFT'].includes(to.name)) {
-    router.push({ name: 'SendNFT' })
+  if (tx_hash && to.name === 'SendNFT') {
+    await store.dispatch('getListOfNFT')
+    console.log(to, 'to')
+    const tokenIndex = store.getters.getAllNFTs.map((item) => item.token_id).indexOf(to.params.id)
+    console.log(tokenIndex, 'tokenData')
+    if (tokenIndex === -1) {
+      router.push({ name: 'ChooseNFT' })
+    } 
+    passResult(tx_hash, account_id, to.name)
+  }
+
+  if (tx_hash && ['ChooseNFT', 'CreateNFT', 'AddEffect', 'AddEffectConfirm'].includes(to.name)) {
+    console.log(tx_hash, 'tx HASH')
+    router.push({ name: 'ChooseNFT' })
     passResult(tx_hash, account_id, to.name)
   }
   if (tx_hash && to.name === 'ChooseNFT') {

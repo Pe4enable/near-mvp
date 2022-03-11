@@ -7,41 +7,47 @@
     </div>
     <main v-else>
       <div>
-        <h1 class="h1--no-logo">Send NFTs</h1>
+        <h1 class="h1--no-logo">Details of NFT</h1>
         <div
           class="form-nft-send form-nft__detail-page"
+          v-if="NFTComputedData && NFTComputedData.metadata"
         >
-          <div
-            class="nft-cards"
-            v-if="NFTComputedData && NFTComputedData.metadata"
-          >
+          <div class="nft-cards">
             <token-card
               :metadata="NFTComputedData"
               :edit-available="false"
             />
           </div>
           <div class="form-nft-send__inputs">
-            <div>
-              <span class="form-nft-send__inputs-title">Receiver ID</span>
-              <input
-                type="text"
-                placeholder="Receiver ID"
-                class="input form-nft__input"
-                v-model="nftObj.receiver_id"
-              >
-            </div>
+            <span class="form-nft-send__inputs-title">Title</span>
+            <input
+              type="text"
+              placeholder="NFT title"
+              class="input form-nft__input"
+              v-model="NFTComputedData.metadata.title"
+            >
+            <span class="form-nft-send__inputs-title">Description</span>
+            <textarea
+              type="text"
+              placeholder="NFT description"
+              class="input form-nft__input form-nft__textarea"
+              v-model="NFTComputedData.metadata.description"
+            />
             <div class="form-nft__bottom">
               <button
                 class="main-btn"
-                @click="approveNFTHandler"
-                :disabled="!isNFTApproved(NFTComputedData)"
-              >Approve</button>
+                :disabled="true"
+              >Burn NFT</button>
+              <router-link
+                class="main-btn"
+                :to="{ name: 'SendNFT', params: { id: NFTComputedData.token_id }}"
+              >Send NFT</router-link>
               <button
                 class="main-btn"
                 type="submit"
-                :disabled="isNFTApproved(NFTComputedData)"
-                @click="sendNFTHandler"
-              >Send</button>
+                :disabled="true"
+                @click="changeFormat"
+              >Change Format</button>
             </div>
           </div>
         </div>
@@ -58,7 +64,7 @@ import NavBar from '../components/NavBar/NavBar'
 import TokenCard from '../components/TokenCard/TokenCard'
 
 export default {
-  name: "SendNFT",
+  name: "NFTDetails",
 
   components: {
     Spinner,
@@ -159,6 +165,9 @@ export default {
       'sendNFTByToken',
       'getNFTByToken',
     ]),
+    changeFormat() {
+      console.log('changeFormat')
+    },
     chooseNFT(tokenId) {
       const index = this.nftObj.token_id.findIndex((_) => _ === tokenId)
 

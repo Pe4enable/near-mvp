@@ -3,47 +3,72 @@
     <nav-bar :navigation="getNav"/>
     <div v-if="getNftsAreLoading || getStatus === 1" class="loading-container">
       <spinner :size="92" color="#000" />
-      <h1 class="h1--no-logo">{{ statusText }}</h1>
+      <h1>{{ statusText }}</h1>
     </div>
     <main v-else>
-      <div>
-        <h1 class="h1--no-logo">Selected NFT</h1>
-        <div
-          class="nft-cards-box"
-        >
+      <div class="effect-confirm">
+        <div>
+          <h1>Selected NFT</h1>
+          <div
+            class="nft-cards-box"
+          >
+            <div
+              class="nft-cards"
+              v-if="NFTComputedData && NFTComputedData.metadata"
+            >
+              <token-card
+                class="form-nft-send__media"
+                :metadata="NFTComputedData"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="effect-confirm__inner">
+          <h1>NFT effects</h1>
+
           <div
             class="nft-cards"
-            v-if="NFTComputedData && NFTComputedData.metadata"
+            v-if="getEffect"
           >
-            <token-card
+            <img
+              v-if="getEffect.image.endsWith('.jpg')"
               class="form-nft-send__media"
-              :metadata="NFTComputedData"
+              :src="getEffect.image"
             />
+            <video
+              v-else
+              autoplay
+              loop
+              class="embed-responsive-item"
+            >
+              <source :src="getEffect.image" type="video/mp4">
+            </video>
+          </div>
+        </div>
+        <div class="form-nft-send__inputs form-nft-send__inputs--effects">
+          <span class="form-nft-send__inputs-title">Title</span>
+          <input
+            type="text"
+            placeholder="NFT title"
+            class="input form-nft__input"
+            v-model="nftObj.metadata.title"
+          >
+          <span class="form-nft-send__inputs-title">Description</span>
+          <textarea
+            type="text"
+            placeholder="NFT description"
+            class="input form-nft__input form-nft__textarea"
+            v-model="nftObj.metadata.description"
+          />
+          <div class="form-nft__bottom">
+            <button
+              class="main-btn"
+              @click="handleMint"
+            >Confirm</button>
           </div>
         </div>
       </div>
-      <h1>NFT effects</h1>
-
-      <div
-        class="effect-cards-box"
-        v-if="getEffects && getEffects.length"
-      >
-        <effect-cards
-          @cardClicked="chooseEffect"
-          :show-id="false"
-          :cards="getEffects"
-          :choice="[getEffectChoice]"
-          content-type="video"
-        ></effect-cards>
-        <router-link
-          class="main-btn"
-          :to="{ name: 'AddEffectConfirm', params: {
-            id: NFTComputedData.token_id,
-            effectId: getEffectChoice,
-          }}"
-        >Submit</router-link>
-      </div>
-      <div v-else class="loading-container">
+      <div v-if="[0, 2, 3, 4].includes(getStatus)" class="loading-container">
         <spinner :size="92" color="#000" />
         <h1>{{ statusText }}</h1>
       </div>
@@ -57,24 +82,24 @@ import TokenCard from '../components/TokenCard/TokenCard'
 import { mapGetters, mapActions } from "vuex"
 import { StatusType } from "../utilities"
 import NavBar from '../components/NavBar/NavBar'
-import EffectCards from "../components/EffectCards/EffectCards.vue"
 
 export default {
-  name: "AddEffect",
+  name: "AddEffectConfirm",
 
   components: {
     Spinner,
     NavBar,
-    EffectCards,
     TokenCard,
   },
 
   data() {
     return {
       nftObj: {
-        receiver_id: 'near_testing2.testnet',
+        metadata: {
+          title: '',
+          description: '',
+        },
         token_id: [],
-        media: '',
       },
       NFTData: {},
     }
@@ -83,6 +108,7 @@ export default {
 
   mounted() {
     this.setEffects()
+    this.setEffectChoice(this.$route.params.effectId)
   },
 
   computed: {
@@ -90,8 +116,7 @@ export default {
       'getAllNFTs',
       'getNftsAreLoading',
       'getStatus',
-      'getEffects',
-      'getEffectChoice',
+      'getEffect',
       'getDeployedPictureMeta',
     ]),
     getNav() {
@@ -105,16 +130,6 @@ export default {
     },
     NFTComputedData() {
       return this.getAllNFTs.find((item) => item.token_id === this.$route.params.id)
-    },
-    cardClass() {
-      return (idx) => this.nftObj.token_id.indexOf(idx) !== -1
-    },
-    isNFTApproved() {
-      return this.nftObj.token_id.some((token) => {
-        const tokenData = this.getAllNFTs.find((item) => item.token_id === token)
-        const getKeyLength = Object.keys(tokenData.approved_account_ids).length
-        return getKeyLength === 0
-      })
     },
     statusText() {
       switch (this.getStatus) {
@@ -177,8 +192,8 @@ export default {
       const obj = {
         token_id: `token-${Date.now()}`,
         metadata: {
-          title: 'NFT token title',
-          description: 'NFT token description',
+          title: this.nftObj.metadata.title,
+          description: this.nftObj.metadata.description,
           media: this.getDeployedPictureMeta,
           copies: 1,
         },
@@ -192,20 +207,27 @@ export default {
         metadata: obj.metadata,
       })
     },
-    async sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms))
-    },
-    async chooseEffect(id) {
-      if (this.getEffectChoice && id === this.getEffectChoice) {
-        this.setEffectChoice(null)
-      } else {
-        this.setEffectChoice(id)
-      }
-      await this.sleep(5)
-    },
   },
 }
 </script>
 
 <style lang="scss">
+.effect-confirm {
+  display: flex;
+
+  img {
+    width: 250px;
+    height: 250px;
+  }
+}
+
+.effect-confirm__inner {
+  margin-left: 50px;
+}
+
+.form-nft-send__inputs--effects {
+  height: 50%;
+  margin-top: auto;
+
+}
 </style>

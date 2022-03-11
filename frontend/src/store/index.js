@@ -8,6 +8,7 @@ import {
   createRandomNft,
   createUsualNFT,
   sendNFT,
+  getImageForTokenByURI,
 } from "../near_utilities"
 
 
@@ -35,6 +36,7 @@ const store = new Vuex.Store({
     globalLoading: false,
     result: null,
     NFT: null,
+    NFTsPool: [],
     status: StatusType.ChoosingParameters
   },
   mutations: {
@@ -76,10 +78,14 @@ const store = new Vuex.Store({
     },
     SET_ACCOUNT_ID (state, payload) {
       state.account_id = payload
-    }
+    },
+    SET_TOKEN_IMAGE (state, tokenInfo) {
+      state.NFTsPool.push(tokenInfo)
+    },
   },
   actions: {
     passNFT ({commit}, data) {
+      console.log(data, 'passNFT')
       commit('setNFT', data)
     },
     // async setBalance ({commit, state}) {
@@ -111,22 +117,29 @@ const store = new Vuex.Store({
     },
     async setResult ({commit, dispatch, getters}, type) {
       dispatch('setStatus', StatusType.Applying)
-      if (type !== "base64") {
+      console.log('set RESULT')
+      if (type === "base64") {
+        commit('setResult', getters.getNFTforModification.media)
+      } else {
         commit('setResult', await modifyPicture(getters.getNFTforModification.media, getters.getEffectChoice))
       }
-
-      console.log('setResult asdasdasd', getters.getNFTforModification.media)
-      commit('setResult', getters.getNFTforModification.media)
     },
     async setDeployedPictureMeta ({commit, dispatch, getters}, type) {
       dispatch('setStatus', StatusType.DeployingToIPFS)
+      console.log('set setDeployedPictureMeta')
       commit('setDeployedPictureMeta', await deployNFTtoIPFS(getters.getIpfs, getters.getResult, getters.getNFTforModification, type))
     },
     async getListOfNFT ({commit, dispatch, getters}) {
       dispatch('setNFTsLoading', true)
       const result = await nftTokensForOwner({dispatch}, getters.getAccountId, getters.getContract)
-      console.log(result, 'result getListOfNFT')
       commit('passAllNFTs', result)
+    },
+    async setTokenImage ({commit,getters}, token) {
+      let url = null
+      if (getters.getIpfs) {
+        url = await getImageForTokenByURI(getters.getIpfs, token.metadata.media)
+      }
+      commit('SET_TOKEN_IMAGE', { tokenImage: url, token_id: token.token_id})
     },
     createNewRandomNFT ({getters, dispatch},  { token_id, metadata }) {
       dispatch('setStatus', StatusType.Minting)
@@ -148,7 +161,7 @@ const store = new Vuex.Store({
   },
   getters: {
     getEffects: state => state.effects,
-    getEffect: state => state.effects.filter(x => x.id === state.effectChoice) ? [0] : null,
+    getEffect: state => state.effects.find(x => x.id === state.effectChoice),
     getEffectChoice: state => state.effectChoice,
     getIpfs: state => state.ipfs,
     getResult: state => state.result,
@@ -159,6 +172,7 @@ const store = new Vuex.Store({
     getAccountId: state => state.account_id,
     getContract: state => state.contract,
     getAllNFTs: state => state.allNFTs,
+    getNFTsPool: state => state.NFTsPool,
     getNFTforModification: (state) => state.NFT
   }
 })

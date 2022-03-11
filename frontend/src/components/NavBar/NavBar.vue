@@ -1,10 +1,15 @@
 <template>
   <div class="navbar">
     <nav class="navbar__nav">
-      <div class="navbar__nav-wrap" v-for="(item, key) in navigation" :key="key">
+      <div
+        class="navbar__nav-wrap"
+        v-for="(item, key) in navigation"
+        :key="key"
+      >
         <router-link
-          class="navbar__nav-wrap__item"
-          :disabled="item.params ? true : false"
+          :class="['navbar__nav-wrap__item', {
+            'navbar__nav-wrap__item--disabled': item.params && !item.params.id ? true : false
+          }]"
           :to="{
             name: item.name,
             params: item.params ? item.params : {}
@@ -63,11 +68,12 @@ export default {
   font-size: 24px;
   font-weight: 500;
   text-align: center;
-  background: #5ce9bc;
+  background-color: #5ce9bc;
   border: #000 2px solid;
   color: #000;
   line-height: 1;
   overflow: hidden;
+  transition: background-color 0.15s ease;
 
   span {
     position: relative;
@@ -87,6 +93,26 @@ export default {
     z-index: 1;
     transition: transform 0.25s ease;
   }
+}
+
+.navbar__nav-wrap__item--disabled {
+		box-shadow: none;
+		background-color: rgba(58, 31, 79, .4);
+		color: #00000047;
+		cursor: not-allowed;
+
+		&:hover {
+			background-color: rgba(58, 31, 79, .4);
+			color: #00000047;
+	
+			span {
+				color: #00000047;
+			}
+      &.navbar__nav-wrap__item:before {
+        transform: translateX(-235px);
+      }
+		}
+
 }
 
 .navbar__nav-wrap__item:hover,

@@ -127,13 +127,13 @@ button, input {
 				color: #00000047;
 			}
 		}
-	
 	}
 }
 
 .main-btn--exit {
 	background-color: rgba(92, 233, 188, 1);
 	color: #000;
+	margin-left: 20px;
 
 	&:hover {
 		color: #fff;
@@ -159,18 +159,6 @@ fieldset {
 	padding: 2em 0;
 }
 
-input {
-	background-color: var(--shadow);
-	border: none;
-	border-radius: 5px 0 0 5px;
-	caret-color: var(--primary);
-	color: inherit;
-	padding: 0.25em 1em;
-}
-input::selection {
-	background-color: var(--secondary);
-	color: #efefef;
-}
 input:focus {
 	box-shadow: 0 0 10em rgba(0, 0, 0, 0.02) inset;
 }
@@ -233,4 +221,53 @@ li {
 
 .form-nft__input:last-child {
   margin-bottom: 0;
+}
+
+.effect-cards-box {
+  margin-bottom: 50px;
+}
+
+
+.form-nft-send {
+  display: flex;
+}
+
+.form-nft-send__inputs-title {
+	font-size: 18px;
+	font-weight: 700;
+	margin-bottom: 7px;
+}
+
+.form-nft-send__inputs {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-left: 40px;
+}
+
+.form-nft__bottom {
+  display: flex;
+  flex-direction: column;
+
+  .main-btn {
+    margin-bottom: 20px;
+  }
+
+  .main-btn:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.form-nft-send__media {
+  display: block;
+  width: 230px;
+  height: 230px;
+}
+
+.link {
+	color: rgba(92, 233, 188, 1);
+
+	&:hover {
+		text-decoration: underline;
+	}
 }
