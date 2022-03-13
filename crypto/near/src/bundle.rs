@@ -10,7 +10,7 @@ impl Contract {
         receiver_id: AccountId,
         //we add an optional parameter for perpetual royalties
         perpetual_royalties: Option<HashMap<AccountId, u32>>,
-        bundles: UnorderedSet<TokenId>,
+        bundles: Vector<TokenId>,
         transferOwnership: bool,
     ) {
         //measure the initial storage being used on the contract
@@ -47,10 +47,8 @@ impl Contract {
         for bundle in bundles {
             //check ownerships
             if(transferOwnership) {
-                bundle.nft_transfer_call({
-                    receiver_id: receiver_id,
-                    token_id: bundle.token_id,
-                    msg:"",});
+
+                bundle::nft_transfer(receiver_id, bundle.token_id)
                 bundle.isOwned = true;
             }
         }
