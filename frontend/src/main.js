@@ -11,7 +11,7 @@ Vue.config.productionTip = false
 Vue.use(Notifications)
 Vue.component('Icon', IconComponent)
 
-window.nearInitPromise = initContract()
+window.nearInitPromise = initContract(store)
   .then(() => {
     new Vue({
       store,

@@ -6,7 +6,24 @@
       <h1>{{ statusText }}</h1>
     </div>
     <main v-else>
-      <h1>Create new NFT</h1>
+      <h1>Selected NFTs</h1>
+      <div
+        class="nft-cards"
+        v-if="getNFTsData && getNFTsData.length"
+      >
+        <div
+          v-for="item in getNFTsData"
+          :key="item.token_id"
+          class="nft-cards__item"
+        >
+          <token-card
+            :metadata="item"
+            :key="item.token_id"
+            :edit-available="false"
+          />
+        </div>
+      </div>
+
       <form class="form-nft">
         <uploader @selected="setUploadedImg"/>
         <div class="form-ntf__inputs">
@@ -25,7 +42,8 @@
           <button
             class="main-btn"
             type="submit"
-            @click="createNewNFT"
+            :disabled="true"
+            @click="bundleNFTs"
           >Submit</button>
         </div>
       </form>
@@ -40,14 +58,16 @@ import { mapGetters, mapActions } from "vuex"
 import { StatusType } from "../utilities"
 import NavBar from '../components/NavBar/NavBar'
 import Uploader from '../components/Uploader/Uploader'
+import TokenCard from '../components/TokenCard/TokenCard'
 
 export default {
-  name: "CreateNFT",
+  name: "BundleNFT",
 
   components: {
     Spinner,
     NavBar,
     Uploader,
+    TokenCard,
   },
 
   data() {
@@ -74,11 +94,20 @@ export default {
     }
   },
 
+  beforeMount() {
+    if (this.getNFTArray && this.getNFTArray.length) {
+      this.nftArray = this.getNFTArray
+    } else {
+      this.nftArray = this.$route.params.id.split('/')
+    }
+  },
+
   computed: {
     ...mapGetters([
-      'getDeployedPictureMeta',
       'getNftsAreLoading',
       'getStatus',
+      'getAllNFTs',
+      'getNFTArray',
     ]),
     statusText() {
       switch (this.getStatus) {
@@ -95,6 +124,16 @@ export default {
       default:
         return ""
       }
+    },
+    getNFTsData() {
+      if (this.getAllNFTs && this.getAllNFTs.length) {
+        return this.nftArray.map((urlToken) => {
+          const item = this.getAllNFTs.find((nftObj) => nftObj.token_id === urlToken)
+          console.log(item, 'ITEM')
+          return item
+        })
+      }
+      return []
     },
   },
 
@@ -124,7 +163,7 @@ export default {
       this.nftObj.metadata.media = src 
       this.passNFT(this.nftObj.metadata)
     },
-    async createNewNFT() {
+    async bundleNFTs() {
       await this.setResult('base64')
       await this.setDeployedPictureMeta('base64')
       console.log(this.getDeployedPictureMeta, 'this.getDeployedPictureMeta')

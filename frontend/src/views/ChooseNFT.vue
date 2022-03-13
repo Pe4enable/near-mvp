@@ -73,9 +73,6 @@ export default {
       'getStatus',
       'getIpfs',
     ]),
-    accountId() {
-      return window.accountId
-    },
     cardClass() {
       return (idx) => this.nftObj.token_id.indexOf(idx) !== -1
     },
@@ -111,8 +108,10 @@ export default {
         },
         {
           text: 'Bundle',
-          name: 'CreateNFT',
-          params: null,
+          name: 'BundleNFT',
+          params: {
+            id: this.nftObj && this.nftObj.token_id.length > 1 ? this.nftObj.token_id : null
+          },
         },
         {
           text: 'Add Effect',
@@ -156,32 +155,21 @@ export default {
       'createNewUsualNFT',
       'setEffects',
       'setTokenImage',
+      'passChosenTokens',
     ]),
     // choosing NFT for applying effects
     chooseNFT(item) {
       const index = this.nftObj.token_id.findIndex((_) => _ === item.token_id)
 
-      // need smart contracts for bundling NFT
-      if (this.nftObj.token_id && this.nftObj.token_id.length > 0) {
-        if (item.token_id === this.nftObj.token_id[0]) {
-          this.nftObj.token_id.splice(index, 1)
-        } else {
-          this.nftObj.token_id.splice(index, 1)
-          this.nftObj.token_id.push(item.token_id)
-        }
+      // Currently approving multiple NFTs is problem, for this need smart contract, bundle approve + bundle sending
+
+      if (index > -1) {
+        this.nftObj.token_id.splice(index, 1)
       } else {
         this.nftObj.token_id.push(item.token_id)
       }
       
-      this.passNFT(item.metadata)
-
-      // Currently approving multiple NFTs is problem, for this need smart contract, bundle approve + bundle sending
-
-      // if (index > -1) {
-      //   this.nftObj.token_id.splice(index, 1)
-      // } else {
-      //   this.nftObj.token_id.push(tokenId)
-      // }
+      this.passChosenTokens(this.nftObj.token_id)
     },
     createNewNFT() {
       this.createNewUsualNFT({
@@ -196,7 +184,6 @@ export default {
 <style lang="scss">
 .nft-cards {
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap;
 }
 
@@ -215,6 +202,9 @@ export default {
 .nft-cards__item.chosen-card {
   box-shadow: -2px -2px 12px 11px rgba(127, 251, 255, 0.7);
   transform: scale(0.9);
+  .nft-cards__info {
+    opacity: 1;
+  }
 }
 
 .nft-cards__media {

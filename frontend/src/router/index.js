@@ -4,6 +4,7 @@ import Login from '../views/Login'
 import ChooseNFT from "../views/ChooseNFT"
 import SendNFT from "../views/SendNFT"
 import CreateNFT from "../views/CreateNFT"
+import BundleNFT from "../views/BundleNFT"
 import AddEffect from "../views/AddEffect"
 import AddEffectConfirm from "../views/AddEffectConfirm"
 import NFTDetails from "../views/NFTDetails"
@@ -41,6 +42,12 @@ let routes = [
     path: '/create_nft',
     name: 'CreateNFT',
     component: CreateNFT,
+    meta: { title: 'Do[NFT]', requiresAuth: true }
+  },
+  {
+    path: '/bundle_nft/:id*',
+    name: 'BundleNFT',
+    component: BundleNFT,
     meta: { title: 'Do[NFT]', requiresAuth: true }
   },
   {
@@ -100,9 +107,9 @@ async function passResult(txHash, accountId, type) {
 // checking for auth require, depend on it, going to next route
 router.beforeEach(async (to, _from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
-  const user = window.walletConnection.isSignedIn()
-  store.dispatch('setCurrentContract', window.contract)
-  store.dispatch('setAccountId', window.accountId)
+  const user = store.getters.getCurrentWallet.isSignedIn()
+  // store.dispatch('setCurrentContract', window.contract)
+  // store.dispatch('setAccountId', store)
 
   if (requiresAuth && !user) {
     next('/login')

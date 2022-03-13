@@ -6,13 +6,16 @@
       </router-link>
     </nav>
     <div class="headbar__acc">
-      <div class="headbar__acc-info">Balance: <b>{{ accBalance }}</b> Near</div>
+      <div class="headbar__acc-info">
+        <span>Balance:</span> <b>{{ accBalance }}</b>
+        <icon name="near" :size="20" class="near-icon" />
+      </div>
       <a
         class="link"
         target="_blank"
         :href="`https://explorer.testnet.near.org/accounts/${getAccountId}`"
       >Wallet.near</a>
-      <button class="main-btn main-btn--exit" style="float: right" @click="logout">Sign out</button>
+      <button class="main-btn main-btn--exit" @click="logout">Sign out</button>
     </div>
   </div>
 </template>
@@ -30,23 +33,34 @@ export default {
   computed: {
     ...mapGetters([
       'getAccountId',
+      'getCurrentWalletBalance',
     ]),
     accBalance() {
-      return Number(window.balance).toFixed(2)
+      return Number(this.getCurrentWalletBalance).toFixed(2)
     },
   },
 }
 </script>
 
-<style>
+<style lang="scss">
 .headbar__acc {
   display: flex;
   align-items: center;
 }
 
 .headbar__acc-info {
+  display: flex;
+  align-items: center;
   color: #fff;
-  margin-right: 15px;
+  margin-right: 20px;
+
+  span {
+    margin-right: 5px;
+  }
+}
+
+.near-icon {
+  margin-left: 5px;
 }
 
 .headbar {

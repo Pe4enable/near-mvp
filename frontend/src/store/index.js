@@ -36,8 +36,11 @@ const store = new Vuex.Store({
     globalLoading: false,
     result: null,
     NFT: null,
+    arrayNFTs: null,
     NFTsPool: [],
-    status: StatusType.ChoosingParameters
+    status: StatusType.ChoosingParameters,
+    wallet: null,
+    balance: null,
   },
   mutations: {
     setIpfs (state, ipfsInstance) {
@@ -73,20 +76,33 @@ const store = new Vuex.Store({
     setNFT (state, payload) {
       state.NFT = payload
     },
+    setNFTArray (state, payload) {
+      state.arrayNFTs = payload
+    },
     SET_CURRENT_CONTRACT (state, payload) {
       state.contract = payload
+    },
+    SET_TOKEN_IMAGE (state, tokenInfo) {
+      state.NFTsPool.push(tokenInfo)
+    },
+    SET_CURRENT_WALLET (state, payload) {
+      state.wallet = payload
     },
     SET_ACCOUNT_ID (state, payload) {
       state.account_id = payload
     },
-    SET_TOKEN_IMAGE (state, tokenInfo) {
-      state.NFTsPool.push(tokenInfo)
+    SET_CURRENT_BALANCE (state, payload) {
+      state.balance = payload
     },
   },
   actions: {
     passNFT ({commit}, data) {
       console.log(data, 'passNFT')
       commit('setNFT', data)
+    },
+    passChosenTokens ({commit}, data) {
+      console.log(data, 'passNFT')
+      commit('setNFTArray', data)
     },
     // async setBalance ({commit, state}) {
     //   commit('setAccountBalance', await getAccountBalance(state.ethersProvider, state.accountAddress))
@@ -103,12 +119,6 @@ const store = new Vuex.Store({
     setStatus ({commit}, status) {
       commit("setStatus", status)
     },
-    setCurrentContract ({commit}, contract) {
-      commit('SET_CURRENT_CONTRACT', contract)
-    },
-    setAccountId ({commit}, id) {
-      commit('SET_ACCOUNT_ID', id)
-    },
     async setIpfs ({commit}) {
       commit('setIpfs', await IPFS.create())
     },
@@ -117,7 +127,7 @@ const store = new Vuex.Store({
     },
     async setResult ({commit, dispatch, getters}, type) {
       dispatch('setStatus', StatusType.Applying)
-      console.log('set RESULT')
+      console.log(getters, 'set RESULT')
       if (type === "base64") {
         commit('setResult', getters.getNFTforModification.media)
       } else {
@@ -131,6 +141,7 @@ const store = new Vuex.Store({
     },
     async getListOfNFT ({commit, dispatch, getters}) {
       dispatch('setNFTsLoading', true)
+      console.log(getters, 'getters getListOfNFT')
       const result = await nftTokensForOwner({dispatch}, getters.getAccountId, getters.getContract)
       commit('passAllNFTs', result)
     },
@@ -158,6 +169,19 @@ const store = new Vuex.Store({
       dispatch('setStatus', StatusType.Approving)
       sendNFT(receiver, token_id, getters.getContract)
     },
+    // NEAR config settings
+    setCurrentContract ({commit}, contract) {
+      commit('SET_CURRENT_CONTRACT', contract)
+    },
+    setNearWalletConnection ({commit}, wallet) {
+      commit('SET_CURRENT_WALLET', wallet)
+    },
+    setAccountId ({commit}, id) {
+      commit('SET_ACCOUNT_ID', id)
+    },
+    setNearBalance ({commit}, balance) {
+      commit('SET_CURRENT_BALANCE', balance)
+    },
   },
   getters: {
     getEffects: state => state.effects,
@@ -173,8 +197,11 @@ const store = new Vuex.Store({
     getContract: state => state.contract,
     getAllNFTs: state => state.allNFTs,
     getNFTsPool: state => state.NFTsPool,
-    getNFTforModification: (state) => state.NFT
-  }
+    getNFTforModification: (state) => state.NFT,
+    getNFTArray: (state) => state.arrayNFTs,
+    getCurrentWallet: (state) => state.wallet,
+    getCurrentWalletBalance: (state) => state.balance,
+  },
 })
 
 export default store

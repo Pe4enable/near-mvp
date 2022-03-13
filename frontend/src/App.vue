@@ -12,7 +12,7 @@
 <script>
 import HeadBar from './components/HeadBar/HeadBar.vue'
 import getConfig from "./nearNets"
-import { mapActions } from "vuex"
+import { mapActions, mapGetters } from "vuex"
 
 const nearConfig = getConfig(process.env.NODE_ENV || "development")
 console.log(
@@ -22,8 +22,19 @@ window.networkId = nearConfig.networkId
 
 export default {
   name: "App",
+
   components: {
     HeadBar,
+  },
+
+  computed: {
+    ...mapGetters([
+      'getCurrentWallet',
+    ]),
+    isSignedIn() {
+      console.log(this.getCurrentWallet, 'current wallet')
+      return this.getCurrentWallet.isSignedIn()
+    },
   },
 
   created() {
@@ -41,18 +52,9 @@ export default {
 
   methods: {
     ...mapActions([
-      'setCurrentContract',
-      'setAccountId',
       'getListOfNFT',
       'setIpfs',
-      'setStatus',
     ]),
-  },
-
-  computed: {
-    isSignedIn() {
-      return window.walletConnection.isSignedIn()
-    },
   },
 }
 </script>
