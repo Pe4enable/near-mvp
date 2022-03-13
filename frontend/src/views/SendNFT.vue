@@ -52,7 +52,7 @@
 <script>
 import Spinner from "../components/Spinner"
 import { mapGetters, mapActions } from "vuex"
-import { Status } from "../store"
+import { StatusType } from "../utilities"
 
 export default {
   name: "SendNFT",
@@ -63,7 +63,6 @@ export default {
 
   data() {
     return {
-      Status,
       nftObj: {
         receiver_id: 'near_testing2.testnet',
         token_id: [],
@@ -89,17 +88,17 @@ export default {
     },
     statusText() {
       switch (this.getStatus) {
-      case this.Status.Approving:
+      case StatusType.Approving:
         return "Redirecting to Approve NFT Transaction"
-      case this.Status.Applying:
+      case StatusType.Applying:
         return "Applying the chosen effect..."
-      case this.Status.DeployingToIPFS:
+      case StatusType.DeployingToIPFS:
         return "Uploading the result to IPFS..."
-      case this.Status.Minting:
+      case StatusType.Minting:
         return "Minting..."
-      case this.Status.Minted:
+      case StatusType.Minted:
         return "Minted!"
-      case this.Status.Approved:
+      case StatusType.Approved:
         return "NFT transaction Succeded"
       default:
         return ""
