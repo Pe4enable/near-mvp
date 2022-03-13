@@ -1,5 +1,3 @@
-use near_sdk::collections::Vector;
-use serde_derive::{Serialize, Deserialize};
 use crate::*;
 
 pub type TokenId = String;
@@ -50,9 +48,9 @@ pub struct Token {
     //keep track of the royalty percentages for the token in a hash map
     pub royalty: HashMap<AccountId, u32>,
     //set of tokens bundeled in this token
-    pub bundles: Option<Vector<Token>>, 
+    pub bundles: Vec<TokenId>, 
     //flag which showed is token transfered to smart contract or not
-    pub isOwned: bool, 
+    pub is_owned: bool, 
 }
 
 //The Json token is what will be returned from view calls. 
@@ -70,9 +68,9 @@ pub struct JsonToken {
     //keep track of the royalty percentages for the token in a hash map
     pub royalty: HashMap<AccountId, u32>,
     //set of tokens bundeled in this token
-    pub bundles: Option<Vector<Token>>, 
+    pub bundles: Vec<TokenId>, 
     //flag which showed is token transfered to smart contract or not
-    pub isOwned: bool, 
+    pub is_owned: bool, 
 }
 
 pub trait NonFungibleTokenMetadata {

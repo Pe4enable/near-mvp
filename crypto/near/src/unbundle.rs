@@ -36,12 +36,12 @@ impl Contract {
             next_approval_id: 0,
             //the map of perpetual royalties for the token (The owner will get 100% - total perpetual royalties)
             royalty,
-            bundles
+            bundles,
         };
 
         for (int i = 0; i < bundles.len(); i++) {
             //check ownerships
-            if(transferOwnership) {
+            if transfer_ownership {
                 bundles[i].
             }
         }

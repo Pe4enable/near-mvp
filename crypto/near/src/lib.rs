@@ -3,7 +3,6 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
-use serde_derive::{Serialize, Deserialize};
 use near_sdk::{
     env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue
 };
@@ -81,7 +80,7 @@ impl Contract {
                 name: "DoNFT Contract".to_string(),
                 symbol: "DONFT".to_string(),
                 icon: None,
-                base_uri: None,
+                base_uri: Some(String::from("donft.io")),
                 reference: None,
                 reference_hash: None,
             },

@@ -1,4 +1,3 @@
-use near_sdk::collections::Vector;
 use crate::*;
 
 #[near_bindgen]
@@ -11,8 +10,8 @@ impl Contract {
         receiver_id: AccountId,
         //we add an optional parameter for perpetual royalties
         perpetual_royalties: Option<HashMap<AccountId, u32>>,
-        bundles: Option<Vector<TokenId>>,
-        transferOwnership: bool,
+        bundles: Vec<TokenId>,
+        transfer_ownership: bool,
     ) {
         //measure the initial storage being used on the contract
         let initial_storage_usage = env::storage_usage();
@@ -42,17 +41,16 @@ impl Contract {
             //the map of perpetual royalties for the token (The owner will get 100% - total perpetual royalties)
             royalty,
             bundles,
-            isOwned: true,
+            is_owned: true,
         };
 
-        for bundle in bundles {
-            //check ownerships
-            if transferOwnership {
-
-                bundle::nft_transfer(receiver_id, bundle.token_id);
-                bundle.isOwned = true;
-            }
-        }
+        // for bundle in bundles {
+        //     //check ownerships
+        //     if transfer_ownership {
+        //         bundle::nft_transfer(receiver_id, bundle.token_id);
+        //         bundle.is_owned = true;
+        //     }
+        // }
 
         //insert the token ID and token struct and make sure that the token doesn't exist
         assert!(
