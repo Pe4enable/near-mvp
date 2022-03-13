@@ -194,7 +194,7 @@ impl Contract {
             next_approval_id: token.next_approval_id,
             //we copy over the royalties from the previous token
             royalty: token.royalty.clone(),
-            bundles: null,
+            bundles: None,
             isOwned: false
         };
         //insert that new token into the tokens_by_id, replacing the old entry 

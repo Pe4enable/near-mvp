@@ -1,4 +1,7 @@
+use near_sdk::collections::Vector;
+use serde_derive::{Serialize, Deserialize};
 use crate::*;
+
 pub type TokenId = String;
 //defines the payout type we'll be returning as a part of the royalty standards.
 #[derive(Serialize, Deserialize)]
@@ -47,7 +50,7 @@ pub struct Token {
     //keep track of the royalty percentages for the token in a hash map
     pub royalty: HashMap<AccountId, u32>,
     //set of tokens bundeled in this token
-    pub bundles: Vector<Token>, 
+    pub bundles: Option<Vector<Token>>, 
     //flag which showed is token transfered to smart contract or not
     pub isOwned: bool, 
 }
@@ -67,7 +70,7 @@ pub struct JsonToken {
     //keep track of the royalty percentages for the token in a hash map
     pub royalty: HashMap<AccountId, u32>,
     //set of tokens bundeled in this token
-    pub bundles: Vector<Token>, 
+    pub bundles: Option<Vector<Token>>, 
     //flag which showed is token transfered to smart contract or not
     pub isOwned: bool, 
 }

@@ -1,3 +1,5 @@
+use near_sdk::collections::Vector;
+use serde_derive::{Serialize, Deserialize};
 use crate::*;
 
 #[near_bindgen]

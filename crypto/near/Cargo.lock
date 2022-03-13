@@ -162,6 +162,7 @@ name = "donft_bundle"
 version = "0.1.0"
 dependencies = [
  "near-sdk",
+ "serde",
  "serde_json",
 ]
 
