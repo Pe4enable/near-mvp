@@ -10,7 +10,7 @@ impl Contract {
         receiver_id: AccountId,
         //we add an optional parameter for perpetual royalties
         perpetual_royalties: Option<HashMap<AccountId, u32>>,
-        bundles: Vec<Address, TokenId>,
+        bundles: Vec<Token>,
         transfer_ownership: bool,
     ) {
         //measure the initial storage being used on the contract
