@@ -68,7 +68,7 @@ pub struct JsonToken {
     //keep track of the royalty percentages for the token in a hash map
     pub royalty: HashMap<AccountId, u32>,
     //set of tokens bundeled in this token
-    pub bundles: Vec<TokenId>, 
+    pub bundles: Vec<Token>, 
     //flag which showed is token transfered to smart contract or not
     pub is_owned: bool, 
 }

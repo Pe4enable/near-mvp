@@ -10,7 +10,7 @@ impl Contract {
         receiver_id: AccountId,
         //we add an optional parameter for perpetual royalties
         perpetual_royalties: Option<HashMap<AccountId, u32>>,
-        bundles: Vec<TokenId>,
+        bundles: Vec<Address, TokenId>,
         transfer_ownership: bool,
     ) {
         //measure the initial storage being used on the contract
@@ -44,13 +44,12 @@ impl Contract {
             is_owned: true,
         };
 
-        // for bundle in bundles {
-        //     //check ownerships
-        //     if transfer_ownership {
-        //         bundle::nft_transfer(receiver_id, bundle.token_id);
-        //         bundle.is_owned = true;
-        //     }
-        // }
+         for bundle in bundles {
+             //check ownerships
+             //как то надо проиницировать контракт на котором токен
+             let contract = Contract::new_default_meta();
+             contract.nft_transfer(receiver_id, bundle.token_id.clone(), None, None);
+         }
 
         //insert the token ID and token struct and make sure that the token doesn't exist
         assert!(
