@@ -40,17 +40,18 @@ impl Contract {
             next_approval_id: 0,
             //the map of perpetual royalties for the token (The owner will get 100% - total perpetual royalties)
             royalty,
-            bundles
+            bundles,
+            isOwned: true,
         };
 
-        for (int i = 0; i < bundles.len(); i++) {
+        for bundle in bundles {
             //check ownerships
             if(transferOwnership) {
-                bundles[i].nft_transfer_call({
+                bundle.nft_transfer_call({
                     receiver_id: receiver_id,
-                    token_id: bundles[i].token_id,
+                    token_id: bundle.token_id,
                     msg:"",});
-                bundles[i].isOwned = true;
+                bundle.isOwned = true;
             }
         }
 

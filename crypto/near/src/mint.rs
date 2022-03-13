@@ -38,6 +38,8 @@ impl Contract {
             next_approval_id: 0,
             //the map of perpetual royalties for the token (The owner will get 100% - total perpetual royalties)
             royalty,
+            bundle: null,
+            isOwned: true,
         };
 
         //insert the token ID and token struct and make sure that the token doesn't exist
