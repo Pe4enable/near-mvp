@@ -15,10 +15,6 @@
           :class="{ 'chosen-card': cardClass(item.token_id)}"
           @click="chooseNFT(item)"
         >
-          <!-- <img
-            :src="item.metadata.media"
-            class="nft-cards__media"
-          > -->
           <token-card
             :metadata="item"
             :key="item.token_id"
@@ -26,6 +22,7 @@
           />
         </div>
       </div>
+      <button @click="loadMoreNFT" class="main-btn">Get more NFT</button>
     </main>
   </div>
 </template>
@@ -52,7 +49,6 @@ export default {
         metadata: {
           title: 'NFT token 2 title',
           description: 'NFT token 2 description',
-          media: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/VitalikButerinProfile.jpg/1200px-VitalikButerinProfile.jpg',
         },
         receiver_id: '',
         token_id: [],
@@ -72,6 +68,7 @@ export default {
       'getNftsAreLoading',
       'getStatus',
       'getIpfs',
+      'getNFTlimit',
     ]),
     cardClass() {
       return (idx) => this.nftObj.token_id.indexOf(idx) !== -1
@@ -136,9 +133,6 @@ export default {
         })
       },
     },
-    '$route.path': function (val) {
-      console.log('ROUTE CHANGED', val)
-    },
   },
 
   mounted() {
@@ -156,7 +150,13 @@ export default {
       'setEffects',
       'setTokenImage',
       'passChosenTokens',
+      'passNFTlimit',
+      'getListOfNFT',
     ]),
+    loadMoreNFT() {
+      this.passNFTlimit(this.getNFTlimit + 15)
+      this.getListOfNFT()
+    },
     // choosing NFT for applying effects, sending or bundling later
     chooseNFT(item) {
       const index = this.nftObj.token_id.findIndex((_) => _ === item.token_id)

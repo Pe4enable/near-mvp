@@ -1,10 +1,13 @@
 <template>
   <div id="root">
     <notifications group="foo" />
+
     <div v-if="getContractLoading" class="loading-container loading-container--app">
       <spinner :size="92" color="#000" />
     </div>
+
     <template v-else>
+
       <head-bar
         v-if="isSignedIn"
       />
@@ -12,6 +15,7 @@
       <div class="container">
         <router-view />
       </div>
+
     </template>
   </div>
 </template>
@@ -54,7 +58,6 @@ export default {
     isSignedIn: {
       handler(value) {
         if (value) {
-          console.log(this.getCurrentWallet, 'this.getCurrentWallet')
           // getting all NFTs of currently signed user
           this.getListOfNFT()
         }

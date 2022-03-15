@@ -43,11 +43,11 @@ export function createUsualNFT(token_id, metadata, receiver_id, contract) {
   }
 }
 
-export async function nftTokensForOwner({dispatch}, account_id, contract) {
+export async function nftTokensForOwner({dispatch}, account_id, contract, limit) {
   let NFTs = []
   try {
     await contract
-      .nft_tokens_for_owner({ account_id, limit: 30 })
+      .nft_tokens_for_owner({ account_id, limit })
       .then((data) => NFTs = data)
 
     dispatch('setNFTsLoading', false)

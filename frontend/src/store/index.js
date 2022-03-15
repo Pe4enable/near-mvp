@@ -36,6 +36,7 @@ const store = new Vuex.Store({
     NFTdata: null,
     arrayNFTs: null,
     NFTsPool: [],
+    NFTlimit: 15,
     status: StatusType.ChoosingParameters,
     wallet: null,
     balance: null,
@@ -77,6 +78,9 @@ const store = new Vuex.Store({
     setNFTArray (state, payload) {
       state.arrayNFTs = payload
     },
+    SET_NFT_LIMIT (state, payload) {
+      state.NFTlimit = payload
+    },
     SET_CURRENT_CONTRACT_LOADING (state, payload) {
       state.contractLoading = payload
     },
@@ -97,6 +101,9 @@ const store = new Vuex.Store({
     },
   },
   actions: {
+    passNFTlimit ({commit}, data) {
+      commit('SET_NFT_LIMIT', data)
+    },
     passNFT ({commit}, data) {
       console.log(data, 'passNFT')
       commit('setNFT', data)
@@ -150,7 +157,7 @@ const store = new Vuex.Store({
     async getListOfNFT ({commit, dispatch, getters}) {
       dispatch('setNFTsLoading', true)
       console.log(getters, 'getters getListOfNFT')
-      const result = await nftTokensForOwner({dispatch}, getters.getAccountId, getters.getContract)
+      const result = await nftTokensForOwner({dispatch}, getters.getAccountId, getters.getContract, getters.getNFTlimit)
       commit('passAllNFTs', result)
     },
     async setTokenImage ({commit,getters}, token) {
@@ -204,6 +211,7 @@ const store = new Vuex.Store({
     getContractLoading: state => state.contractLoading,
     getAccountId: state => state.account_id,
     getContract: state => state.contract,
+    getNFTlimit: (state) => state.NFTlimit,
     getAllNFTs: state => state.allNFTs,
     getNFTsPool: state => state.NFTsPool,
     getNFTforModification: (state) => state.NFTdata,
