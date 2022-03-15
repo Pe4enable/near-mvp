@@ -11,11 +11,10 @@ import NFTDetails from "../views/NFTDetails"
 import store from "../store"
 import { StatusType } from "../utilities"
 
-const { providers } = require("near-api-js")
+import { providers } from "near-api-js"
 const provider = new providers.JsonRpcProvider(
   "https://rpc.testnet.near.org"
 )
-
 
 Vue.use(Router)
 
@@ -112,8 +111,6 @@ router.beforeEach(async (to, _from, next) => {
   if (store.getters.getCurrentWallet) {
     user = store.getters.getCurrentWallet.isSignedIn()
   }
-  // store.dispatch('setCurrentContract', window.contract)
-  // store.dispatch('setAccountId', store)
 
   if (store.getters.getContract && requiresAuth && !user) {
     next('/login')

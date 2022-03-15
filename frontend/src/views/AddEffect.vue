@@ -83,7 +83,6 @@ export default {
 
   mounted() {
     this.setEffects()
-    // this.setResult()
   },
 
   computed: {

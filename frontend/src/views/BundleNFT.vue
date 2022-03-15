@@ -76,7 +76,6 @@ export default {
         metadata: {
           title: 'NFT token 2 title',
           description: 'NFT token 2 description',
-          media: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/VitalikButerinProfile.jpg/1200px-VitalikButerinProfile.jpg',
         },
         receiver_id: '',
         token_id: [],

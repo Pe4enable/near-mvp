@@ -14,7 +14,6 @@ pub use crate::nft_core::*;
 pub use crate::approval::*;
 pub use crate::royalty::*;
 pub use crate::events::*;
-pub use crate::greeting::*;
 
 mod internal;
 mod approval; 
@@ -24,7 +23,6 @@ mod mint;
 mod nft_core; 
 mod royalty; 
 mod events;
-mod greeting;
 
 // pub mod event;
 // pub use event::NearEvent;

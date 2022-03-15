@@ -168,35 +168,6 @@ export default {
     changeFormat() {
       console.log('changeFormat')
     },
-    chooseNFT(tokenId) {
-      const index = this.nftObj.token_id.findIndex((_) => _ === tokenId)
-
-      // need smart contracts for bundling NFT
-      if (this.nftObj.token_id && this.nftObj.token_id.length > 0) {
-        if (tokenId === this.nftObj.token_id[0]) {
-          this.nftObj.token_id.splice(index, 1)
-        }
-      } else {
-        this.nftObj.token_id.push(tokenId)
-      }
-
-      // Currently approving multiple NFTs is problem, for this need smart contract, bundle approve + bundle sending
-
-      // if (index > -1) {
-      //   this.nftObj.token_id.splice(index, 1)
-      // } else {
-      //   this.nftObj.token_id.push(tokenId)
-      // }
-    },
-    approveNFTHandler() {
-      this.setNFTApproveId(this.NFTComputedData.token_id)
-    },
-    sendNFTHandler() {
-      this.sendNFTByToken({
-        receiver: this.nftObj.receiver_id,
-        token_id: this.NFTComputedData.token_id
-      })
-    }
   },
 }
 </script>

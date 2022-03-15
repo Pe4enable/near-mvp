@@ -1,10 +1,10 @@
 <template>
   <div id="root">
+    <notifications group="foo" />
     <div v-if="getContractLoading" class="loading-container loading-container--app">
       <spinner :size="92" color="#000" />
     </div>
     <template v-else>
-      <notifications group="foo" />
       <head-bar
         v-if="isSignedIn"
       />

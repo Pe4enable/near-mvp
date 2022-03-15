@@ -34,7 +34,6 @@
 </template>
 
 <script>
-// import EffectCards from "../components/EffectCards/EffectCards.vue"
 import Spinner from "../components/Spinner"
 import { mapGetters, mapActions } from "vuex"
 import { StatusType } from "../utilities"
@@ -120,7 +119,6 @@ export default {
       'passNFT',
     ]),
     setUploadedImg(src) {
-      console.log(src, 'SRC')
       this.nftObj.metadata.media = src 
       this.passNFT(this.nftObj.metadata)
     },

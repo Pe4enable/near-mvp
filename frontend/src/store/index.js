@@ -33,7 +33,7 @@ const store = new Vuex.Store({
     nftTransactionHash: null,
     globalLoading: false,
     imageResult: null,
-    NFT: null,
+    NFTdata: null,
     arrayNFTs: null,
     NFTsPool: [],
     status: StatusType.ChoosingParameters,
@@ -72,7 +72,7 @@ const store = new Vuex.Store({
       state.allNFTs = payload
     },
     setNFT (state, payload) {
-      state.NFT = payload
+      state.NFTdata = payload
     },
     setNFTArray (state, payload) {
       state.arrayNFTs = payload
@@ -206,7 +206,7 @@ const store = new Vuex.Store({
     getContract: state => state.contract,
     getAllNFTs: state => state.allNFTs,
     getNFTsPool: state => state.NFTsPool,
-    getNFTforModification: (state) => state.NFT,
+    getNFTforModification: (state) => state.NFTdata,
     getNFTArray: (state) => state.arrayNFTs,
     getCurrentWallet: (state) => state.wallet,
     getCurrentWalletBalance: (state) => state.balance,

@@ -157,30 +157,23 @@ export default {
       'setTokenImage',
       'passChosenTokens',
     ]),
-    // choosing NFT for applying effects
+    // choosing NFT for applying effects, sending or bundling later
     chooseNFT(item) {
       const index = this.nftObj.token_id.findIndex((_) => _ === item.token_id)
 
-      // Currently approving multiple NFTs is problem, for this need smart contract, bundle approve + bundle sending
-
+      // Currently approving multiple NFTs is problem,
+      // for this need smart contract, bundle approve + bundle sending
       if (index > -1) {
         this.nftObj.token_id.splice(index, 1)
       } else {
         this.nftObj.token_id.push(item.token_id)
       }
-      
-      if (this.nftObj && this.nftObj.length === 1) {
-        this.passNFT(item)
-      } else {
-        this.passNFT({})
-      }
+
+      // this one for single actions, send or effects page
+      this.nftObj && this.nftObj.token_id.length === 1 ? this.passNFT(item) : this.passNFT({})
+
+      // this one for bundle page
       this.passChosenTokens(this.nftObj.token_id)
-    },
-    createNewNFT() {
-      this.createNewUsualNFT({
-        token_id: `token-${Date.now()}`,
-        metadata: this.nftObj.metadata,
-      })
     },
   },
 }
