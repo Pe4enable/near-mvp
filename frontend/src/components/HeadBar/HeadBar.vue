@@ -26,17 +26,21 @@ import { logout } from "../../nearConfig"
 
 export default {
   name: "HeadBar",
-  methods: {
-    logout: logout,
-  },
 
   computed: {
     ...mapGetters([
       'getAccountId',
       'getCurrentWalletBalance',
+      'getCurrentWallet',
     ]),
     accBalance() {
       return Number(this.getCurrentWalletBalance).toFixed(2)
+    },
+  },
+
+  methods: {
+    logout() {
+      logout(this.getCurrentWallet)
     },
   },
 }

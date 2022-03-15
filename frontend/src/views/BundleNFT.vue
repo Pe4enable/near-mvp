@@ -98,7 +98,7 @@ export default {
     if (this.getNFTArray && this.getNFTArray.length) {
       this.nftArray = this.getNFTArray
     } else {
-      this.nftArray = this.$route.params.id.split('/')
+      this.nftArray = sessionStorage.getItem('tokens_id').split(',')
     }
   },
 

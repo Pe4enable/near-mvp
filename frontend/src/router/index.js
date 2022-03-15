@@ -45,7 +45,7 @@ let routes = [
     meta: { title: 'Do[NFT]', requiresAuth: true }
   },
   {
-    path: '/bundle_nft/:id*',
+    path: '/bundle_nft',
     name: 'BundleNFT',
     component: BundleNFT,
     meta: { title: 'Do[NFT]', requiresAuth: true }
@@ -82,13 +82,6 @@ const router = new Router({
   routes
 })
 
-router.afterEach((to, from) => {
-  Vue.nextTick(() => {
-    from
-    document.title = to.meta.title || process.env.NAME
-  })
-})
-
 async function passResult(txHash, accountId, type) {
   const result = await provider.txStatus(txHash, accountId)
 
@@ -104,14 +97,25 @@ async function passResult(txHash, accountId, type) {
   }
 }
 
+
+router.afterEach(async (to, from) => {
+  Vue.nextTick(() => {
+    from
+    document.title = to.meta.title || process.env.NAME
+  })
+})
+
 // checking for auth require, depend on it, going to next route
 router.beforeEach(async (to, _from, next) => {
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
-  const user = store.getters.getCurrentWallet.isSignedIn()
+  let user = null
+  if (store.getters.getCurrentWallet) {
+    user = store.getters.getCurrentWallet.isSignedIn()
+  }
   // store.dispatch('setCurrentContract', window.contract)
   // store.dispatch('setAccountId', store)
 
-  if (requiresAuth && !user) {
+  if (store.getters.getContract && requiresAuth && !user) {
     next('/login')
     Vue.notify({
       group: 'foo',
@@ -123,29 +127,20 @@ router.beforeEach(async (to, _from, next) => {
   }
 
   // handling transaction hashes, for displayng response to user
-  const account_id = window.accountId
+  const account_id = store.getters.getAccountId
   const url = new URL(document.location)
   const tx_hash = url.searchParams.get('transactionHashes')
-  console.log("Result: 2 ", this)
 
   if (tx_hash && to.name === 'SendNFT') {
-    await store.dispatch('getListOfNFT')
-    console.log(to, 'to')
-    const tokenIndex = store.getters.getAllNFTs.map((item) => item.token_id).indexOf(to.params.id)
-    console.log(tokenIndex, 'tokenData')
-    if (tokenIndex === -1) {
-      router.push({ name: 'ChooseNFT' })
-    } 
     passResult(tx_hash, account_id, to.name)
+    router.push({ name: 'SendNFT' })
   }
 
   if (tx_hash && ['ChooseNFT', 'CreateNFT', 'AddEffect', 'AddEffectConfirm'].includes(to.name)) {
-    console.log(tx_hash, 'tx HASH')
     router.push({ name: 'ChooseNFT' })
     passResult(tx_hash, account_id, to.name)
   }
   if (tx_hash && to.name === 'ChooseNFT') {
-    console.log(tx_hash, 'tx_hash')
     router.push({ name: 'ChooseNFT' })
     passResult(tx_hash, account_id, 'choose_nft')
   }

@@ -11,13 +11,13 @@ Vue.config.productionTip = false
 Vue.use(Notifications)
 Vue.component('Icon', IconComponent)
 
-window.nearInitPromise = initContract(store)
+initContract(store)
   .then(() => {
-    new Vue({
-      store,
-      router,
-      render: h => h(App),
-    }).$mount("#app")
-
+    store.dispatch('setContractLoading', false)
   })
   
+new Vue({
+  store,
+  router,
+  render: h => h(App),
+}).$mount("#app")

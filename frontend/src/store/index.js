@@ -12,11 +12,8 @@ import {
 } from "../near_utilities"
 
 
-import {StatusType} from "../utilities"
+import {StatusType, getIPFS} from "../utilities"
 import {getEffects, modifyPicture} from "../api"
-
-// too heavy, this one adding 2mb to builded bundle-js (total 2.5mb)
-import * as IPFS from "ipfs-core"
 
 Vue.use(Vuex)
 
@@ -27,6 +24,7 @@ const store = new Vuex.Store({
     allNFTs: [],
     nftChoice: [],
     nftLoading: false,
+    contractLoading: false,
     contract: null,
     account_id: null,
     effects: [],
@@ -34,7 +32,7 @@ const store = new Vuex.Store({
     deployedPictureMeta: null,
     nftTransactionHash: null,
     globalLoading: false,
-    result: null,
+    imageResult: null,
     NFT: null,
     arrayNFTs: null,
     NFTsPool: [],
@@ -55,8 +53,8 @@ const store = new Vuex.Store({
     setEffectChoice(state, choice) {
       state.effectChoice = choice
     },
-    setResult (state, blob) {
-      state.result = blob
+    setImageResult (state, blob) {
+      state.imageResult = blob
     },
     setNFTsLoading (state, blob) {
       state.nftLoading = blob
@@ -78,6 +76,9 @@ const store = new Vuex.Store({
     },
     setNFTArray (state, payload) {
       state.arrayNFTs = payload
+    },
+    SET_CURRENT_CONTRACT_LOADING (state, payload) {
+      state.contractLoading = payload
     },
     SET_CURRENT_CONTRACT (state, payload) {
       state.contract = payload
@@ -102,11 +103,17 @@ const store = new Vuex.Store({
     },
     passChosenTokens ({commit}, data) {
       console.log(data, 'passNFT')
+
+      sessionStorage.setItem("tokens_id", data)
       commit('setNFTArray', data)
     },
     // async setBalance ({commit, state}) {
     //   commit('setAccountBalance', await getAccountBalance(state.ethersProvider, state.accountAddress))
     // },
+    setContractLoading ({commit}, data) {
+      console.log(data , 'setContractLoading')
+      commit('SET_CURRENT_CONTRACT_LOADING', data)
+    },
     setEffectChoice ({commit}, choice) {
       commit('setEffectChoice', choice)
     },
@@ -120,7 +127,8 @@ const store = new Vuex.Store({
       commit("setStatus", status)
     },
     async setIpfs ({commit}) {
-      commit('setIpfs', await IPFS.create())
+      const ipfs = await getIPFS()
+      commit('setIpfs', await ipfs.create())
     },
     async setEffects ({commit}) {
       commit('setEffects', await getEffects())
@@ -129,9 +137,9 @@ const store = new Vuex.Store({
       dispatch('setStatus', StatusType.Applying)
       console.log(getters, 'set RESULT')
       if (type === "base64") {
-        commit('setResult', getters.getNFTforModification.media)
+        commit('setImageResult', getters.getNFTforModification.media)
       } else {
-        commit('setResult', await modifyPicture(getters.getNFTforModification.media, getters.getEffectChoice))
+        commit('setImageResult', await modifyPicture(getters.getNFTforModification.media, getters.getEffectChoice))
       }
     },
     async setDeployedPictureMeta ({commit, dispatch, getters}, type) {
@@ -188,11 +196,12 @@ const store = new Vuex.Store({
     getEffect: state => state.effects.find(x => x.id === state.effectChoice),
     getEffectChoice: state => state.effectChoice,
     getIpfs: state => state.ipfs,
-    getResult: state => state.result,
+    getResult: state => state.imageResult,
     getDeployedPictureMeta: state => state.deployedPictureMeta,
     getStatus: state => state.status,
     getTransactionHash: state => state.nftTransactionHash,
     getNftsAreLoading: state => state.nftLoading,
+    getContractLoading: state => state.contractLoading,
     getAccountId: state => state.account_id,
     getContract: state => state.contract,
     getAllNFTs: state => state.allNFTs,

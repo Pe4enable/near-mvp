@@ -8,6 +8,7 @@ console.log(nearConfig, 'nearConfig')
 // Initialize contract & set global variables
 export async function initContract(store) {
   console.log(store, 'store 111')
+  store.dispatch('setContractLoading', true)
   // Initialize connection to the NEAR testnet
   const near = await connect(Object.assign({ deps: { keyStore: new keyStores.BrowserLocalStorageKeyStore() } }, nearConfig))
 
@@ -36,16 +37,16 @@ export async function initContract(store) {
   store.dispatch('setCurrentContract', cotractSettings)
 }
 
-export function logout() {
-  window.walletConnection.signOut()
+export function logout(getCurrentWallet) {
+  getCurrentWallet.signOut()
   // reload page
   window.location.replace(window.location.origin + window.location.pathname)
 }
 
-export function login() {
+export function login(getCurrentWallet) {
   // Allow the current app to make calls to the specified contract on the
   // user's behalf.
   // This works by creating a new access key for the user's account and storing
   // the private key in localStorage.
-  window.walletConnection.requestSignIn(nearConfig.contractName)
+  getCurrentWallet.requestSignIn(nearConfig.contractName)
 }

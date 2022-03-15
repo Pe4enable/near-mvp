@@ -13,22 +13,29 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex"
 import { login } from "../nearConfig"
 
 export default {
   name: "Login",
 
-  methods: {
-    login() {
-      login()
-    },
+  computed: {
+    ...mapGetters([
+      'getCurrentWallet',
+    ]),
   },
 
   mounted() {
-    if (window.walletConnection.isSignedIn()) {
+    if (this.getCurrentWallet) {
       this.$router.push({name: 'ChooseNFT'})
     }
-  }
+  },
+
+  methods: {
+    login() {
+      login(this.getCurrentWallet)
+    },
+  },
 }
 </script>
 

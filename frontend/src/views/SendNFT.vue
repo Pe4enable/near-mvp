@@ -145,9 +145,16 @@ export default {
     getAllNFTs: {
       handler(value) {
         const data = value.find((item) => item.token_id === this.$route.params.id)
+        console.log(data, 'data')
+        console.log(value, 'getAllNFTs')
         if (this.getAllNFTs && data) {
           this.NFTData = data
           this.nftObj.media = data.metadata.media
+        } else {
+
+          // todo? router do not work in before each properly, in case, nft was approved and then sended,
+          // cause near contract init earlier then app
+          this.$router.push({ name: 'ChooseNFT' })
         }
       },
     },

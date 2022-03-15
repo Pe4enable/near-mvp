@@ -1,6 +1,6 @@
 <template>
   <div class="effect-cards">
-    <div v-for="(card, idx) in cards" class="effect-cards__item" :key="idx" :class="cardClass(card.id || idx)">
+    <div v-for="(card, idx) in cards" class="effect-cards__item" :key="card.id" :class="cardClass(card.id || idx)">
       <div @click="cardClicked(card.id || idx)" class="effect-cards__item__inner">
         <template v-if="getImage(card)">
           <img

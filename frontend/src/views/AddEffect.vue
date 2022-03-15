@@ -26,7 +26,7 @@
 
       <div
         class="effect-cards-box"
-        v-if="getEffects && getEffects.length"
+        v-if="getEffects && getEffects.length && NFTComputedData"
       >
         <effect-cards
           @cardClicked="chooseEffect"
@@ -83,6 +83,7 @@ export default {
 
   mounted() {
     this.setEffects()
+    // this.setResult()
   },
 
   computed: {
@@ -169,39 +170,12 @@ export default {
       'passNFT',
       'createNewRandomNFT',
     ]),
-    // minting NFT with NEW effects
-    async handleMint() {
-      // this.$router.push({'name': 'Minting'})
-      await this.setResult()
-      await this.setDeployedPictureMeta()
-      const obj = {
-        token_id: `token-${Date.now()}`,
-        metadata: {
-          title: 'NFT token title',
-          description: 'NFT token description',
-          media: this.getDeployedPictureMeta,
-          copies: 1,
-        },
-      }
-      this.createNFTWithEffect(obj)
-      console.log('handleMint')
-    },
-    createNFTWithEffect(obj) {
-      this.createNewRandomNFT({
-        token_id: obj.token_id,
-        metadata: obj.metadata,
-      })
-    },
-    async sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms))
-    },
     async chooseEffect(id) {
       if (this.getEffectChoice && id === this.getEffectChoice) {
         this.setEffectChoice(null)
       } else {
         this.setEffectChoice(id)
       }
-      await this.sleep(5)
     },
   },
 }

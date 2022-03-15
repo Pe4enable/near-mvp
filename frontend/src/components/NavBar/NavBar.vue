@@ -36,12 +36,6 @@ export default {
   methods: {
     logout: logout,
   },
-
-  computed: {
-    accBalance() {
-      return Number(window.balance).toFixed(2)
-    },
-  },
 }
 </script>
 

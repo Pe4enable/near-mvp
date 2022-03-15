@@ -169,6 +169,11 @@ export default {
         this.nftObj.token_id.push(item.token_id)
       }
       
+      if (this.nftObj && this.nftObj.length === 1) {
+        this.passNFT(item)
+      } else {
+        this.passNFT({})
+      }
       this.passChosenTokens(this.nftObj.token_id)
     },
     createNewNFT() {
