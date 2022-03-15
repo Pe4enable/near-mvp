@@ -13,6 +13,10 @@ Vue.component('Icon', IconComponent)
 
 initContract(store)
   .then(() => {
+    const user = store.getters.getCurrentWallet.isSignedIn()
+    if (!user) {
+      router.push('/login')
+    }
     store.dispatch('setContractLoading', false)
   })
   

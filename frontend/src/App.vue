@@ -57,6 +57,7 @@ export default {
   watch: {
     isSignedIn: {
       handler(value) {
+        console.log(value, 'value')
         if (value) {
           // getting all NFTs of currently signed user
           this.getListOfNFT()

@@ -112,6 +112,7 @@ router.beforeEach(async (to, _from, next) => {
     user = store.getters.getCurrentWallet.isSignedIn()
   }
 
+  // todo: do not triggering, because beforeEach trigger earlier than contract initialize
   if (store.getters.getContract && requiresAuth && !user) {
     next('/login')
     Vue.notify({
