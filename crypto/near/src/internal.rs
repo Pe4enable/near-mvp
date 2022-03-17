@@ -195,7 +195,6 @@ impl Contract {
             //we copy over the royalties from the previous token
             royalty: token.royalty.clone(),
             bundles: Vec::new(),
-            is_owned: false
         };
         //insert that new token into the tokens_by_id, replacing the old entry 
         self.tokens_by_id.insert(token_id, &new_token);
