@@ -25,11 +25,11 @@ impl Contract {
         &mut self,
         token_id: TokenId,
         metadata: TokenMetadata,
-        receiver_id: AccountId,
         //we add an optional parameter for perpetual royalties
         perpetual_royalties: Option<HashMap<AccountId, u32>>,
         bundles: Vec<Bundle>,
     ) {
+        let caller_id = env::predecessor_account_id();
         //measure the initial storage being used on the contract
         let initial_storage_usage = env::storage_usage();
 
@@ -50,7 +50,7 @@ impl Contract {
         //specify the token struct that contains the owner ID 
         let token = Token {
             //set the owner ID equal to the receiver ID passed into the function
-            owner_id: receiver_id.clone(),
+            owner_id: caller_id.clone(),
             //we set the approved account IDs to the default value (an empty map)
             approved_account_ids: Default::default(),
             //the next approval ID is set to 0
@@ -63,7 +63,7 @@ impl Contract {
         let mut range_iterator = bundles.iter();
         while let Some(bundle) = range_iterator.next() {
             ext_nft::nft_transfer(
-                receiver_id.clone(),
+                env::current_account_id(),
                 bundle.token_id.clone(),
                 bundle.approval_id.clone(),
                 None,
