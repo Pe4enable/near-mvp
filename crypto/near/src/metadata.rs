@@ -2,7 +2,7 @@ use crate::*;
 
 pub type TokenId = String;
 
-#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize)]
+#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Clone)]
 #[serde(crate = "near_sdk::serde")]
 pub struct Bundle {
     //owner of the token
