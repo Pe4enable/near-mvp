@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e && RUSTFLAGS='-C link-arg=-s' cargo build --target wasm32-unknown-unknown --release && mkdir -p ./out && cp target/wasm32-unknown-unknown/release/*.wasm ./out/main.wasm
 near login
-#near create-account nft-example.pe4en.testnet --masterAccount pe4en.testnet --initialBalance 10
-NFT_CONTRACT_ID=nft-example.pe4en.testnet
+near create-account nft-example2.pe4en.testnet --masterAccount pe4en.testnet --initialBalance 10
+NFT_CONTRACT_ID=nft-example2.pe4en.testnet
 MAIN_ACCOUNT=pe4en.testnet
 echo $NFT_CONTRACT_ID
 echo $MAIN_ACCOUNT
