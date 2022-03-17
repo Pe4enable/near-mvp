@@ -1,6 +1,6 @@
 use near_sdk::collections::Vector;
 use near_sdk::{ext_contract, Gas, PromiseResult};
-use serde_derive::{Serialize, Deserialize};
+//use serde_derive::{Serialize, Deserialize};
 use crate::*;
 
 const GAS_FOR_RESOLVE_TRANSFER: Gas = Gas(10_000_000_000_000);
@@ -22,9 +22,8 @@ impl Contract {
         let mut token = if let Some(token) = self.tokens_by_id.get(&token_id) {
             if token.owner_id != caller_id {
                 //we refund the owner for releasing the storage used up by the approved account IDs
-                refund_approved_account_ids(owner_id, &approved_account_ids);
+                //refund_approved_account_ids(owner_id, &approved_account_ids);
                 // The token is not owner by the receiver anymore. Can't return it.
-                return true;
             }
             
             let mut range_iterator = token.bundles.iter();
@@ -43,15 +42,14 @@ impl Contract {
             //we remove the token from the receiver
             self.internal_remove_token_from_owner(&caller_id.clone(), &token_id);
             //we refund the receiver any approved account IDs that they may have set on the token
-            refund_approved_account_ids(caller_id.clone(), &token.approved_account_ids);
+           // refund_approved_account_ids(caller_id.clone(), &token.approved_account_ids);
             //reset the approved account IDs to what they were before the transfer
-            token.approved_account_ids = approved_account_ids;
+           // token.approved_account_ids = approved_account_ids;
 
         //if there isn't a token object, it was burned and so we return true
         } else {
             //we refund the owner for releasing the storage used up by the approved account IDs
-            refund_approved_account_ids(owner_id, &approved_account_ids);
-            return true;
+           // refund_approved_account_ids(self.owner_id, &approved_account_ids);
         };
 
     }
