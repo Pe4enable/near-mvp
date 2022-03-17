@@ -43,6 +43,28 @@ export function createUsualNFT(token_id, metadata, receiver_id, contract) {
   }
 }
 
+// for creating new NFTs BY inputs FORM
+export function createBundleNFT(token_id, metadata, bundles, contract) {
+  try {
+    contract
+      .nft_bundle({
+        token_id,
+        metadata,
+        bundles,
+      }, "300000000000000", '9610000000000000000000')
+      .then((data) => {
+        console.log(data, 'getNftTotal')
+      })
+  } catch(err) {
+    console.error(err, '')
+    Vue.notify({
+      group: 'foo',
+      title: 'Important message',
+      text: `Error - ${err}`,
+    })
+  }
+}
+
 export async function nftTokensForOwner({dispatch}, account_id, contract, limit) {
   let NFTs = []
   try {

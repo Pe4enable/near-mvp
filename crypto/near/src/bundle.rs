@@ -1,5 +1,5 @@
 use crate::*;
-use near_sdk::{ext_contract, Gas, PromiseResult};
+use near_sdk::{ext_contract, Gas};
 
 const GAS_FOR_RESOLVE_TRANSFER: Gas = Gas(10_000_000_000_000);
 const GAS_FOR_NFT_TRANSFER_CALL: Gas = Gas(25_000_000_000_000 + GAS_FOR_RESOLVE_TRANSFER.0);
@@ -25,9 +25,9 @@ impl Contract {
         &mut self,
         token_id: TokenId,
         metadata: TokenMetadata,
+        bundles: Vec<Bundle>,
         //we add an optional parameter for perpetual royalties
         perpetual_royalties: Option<HashMap<AccountId, u32>>,
-        bundles: Vec<Bundle>,
     ) {
         let caller_id = env::predecessor_account_id();
         //measure the initial storage being used on the contract

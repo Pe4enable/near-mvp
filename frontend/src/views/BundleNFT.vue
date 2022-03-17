@@ -42,7 +42,6 @@
           <button
             class="main-btn"
             type="submit"
-            :disabled="true"
             @click="bundleNFTs"
           >Submit</button>
         </div>
@@ -152,7 +151,7 @@ export default {
 
   methods: {
     ...mapActions([
-      'createNewUsualNFT',
+      'createNewBundleNFT',
       'setResult',
       'setDeployedPictureMeta',
       'passNFT',
@@ -166,7 +165,7 @@ export default {
       await this.setResult('base64')
       await this.setDeployedPictureMeta('base64')
       console.log(this.getDeployedPictureMeta, 'this.getDeployedPictureMeta')
-      this.createNewUsualNFT({
+      this.createNewBundleNFT({
         token_id: `token-${Date.now()}`,
         metadata: {
           title: this.nftObj.metadata.title,
@@ -174,6 +173,7 @@ export default {
           media: this.getDeployedPictureMeta,
           copies: 1,
         },
+        bundles: this.getAllNFTs,
       })
     },
   },

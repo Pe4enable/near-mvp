@@ -1,5 +1,6 @@
 const CONTRACT_NAME = process.env.VUE_APP_CONTRACT_NAME ||'nft-example.near_testing.testnet'
 
+console.log(process, 'process')
 function getConfig(env) {
   switch (env) {
 

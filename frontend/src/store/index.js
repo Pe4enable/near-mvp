@@ -7,6 +7,7 @@ import {
   approveNFT,
   createRandomNft,
   createUsualNFT,
+  createBundleNFT,
   sendNFT,
   getImageForTokenByURI,
 } from "../near_utilities"
@@ -175,6 +176,11 @@ const store = new Vuex.Store({
       console.log(token_id, metadata, 'result createNewUsualNFT')
       dispatch('setStatus', StatusType.Minting)
       createUsualNFT(token_id, metadata, getters.getAccountId, getters.getContract)
+    },
+    createNewBundleNFT ({getters, dispatch},  { token_id, metadata, bundles }) {
+      console.log(token_id, metadata, 'result createNewUsualNFT')
+      dispatch('setStatus', StatusType.Minting)
+      createBundleNFT(token_id, metadata, bundles, getters.getContract)
     },
     setNFTApproveId ({getters, dispatch}, token_id) {
       dispatch('setStatus', StatusType.Approving)
