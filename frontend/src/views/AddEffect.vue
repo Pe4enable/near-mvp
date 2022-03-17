@@ -7,44 +7,45 @@
     </div>
     <main v-else>
       <div>
-        <h1 class="h1--no-logo">Send NFTs</h1>
+        <h1 class="h1--no-logo">Selected NFT</h1>
         <div
-          class="form-nft-send form-nft__detail-page"
+          class="nft-cards-box"
         >
           <div
             class="nft-cards"
             v-if="NFTComputedData && NFTComputedData.metadata"
           >
             <token-card
+              class="form-nft-send__media"
               :metadata="NFTComputedData"
-              :edit-available="false"
             />
           </div>
-          <div class="form-nft-send__inputs">
-            <div>
-              <span class="form-nft-send__inputs-title">Receiver ID</span>
-              <input
-                type="text"
-                placeholder="Receiver ID"
-                class="input form-nft__input"
-                v-model="nftObj.receiver_id"
-              >
-            </div>
-            <div class="form-nft__bottom">
-              <button
-                class="main-btn"
-                @click="approveNFTHandler"
-                :disabled="!isNFTApproved(NFTComputedData)"
-              >Approve</button>
-              <button
-                class="main-btn"
-                type="submit"
-                :disabled="isNFTApproved(NFTComputedData)"
-                @click="sendNFTHandler"
-              >Send</button>
-            </div>
-          </div>
         </div>
+      </div>
+      <h1>NFT effects</h1>
+
+      <div
+        class="effect-cards-box"
+        v-if="getEffects && getEffects.length && NFTComputedData"
+      >
+        <effect-cards
+          @cardClicked="chooseEffect"
+          :show-id="false"
+          :cards="getEffects"
+          :choice="[getEffectChoice]"
+          content-type="video"
+        ></effect-cards>
+        <router-link
+          class="main-btn"
+          :to="{ name: 'AddEffectConfirm', params: {
+            id: NFTComputedData.token_id,
+            effectId: getEffectChoice,
+          }}"
+        >Submit</router-link>
+      </div>
+      <div v-else class="loading-container">
+        <spinner :size="92" color="#000" />
+        <h1>{{ statusText }}</h1>
       </div>
     </main>
   </div>
@@ -52,17 +53,19 @@
 
 <script>
 import Spinner from "../components/Spinner"
+import TokenCard from '../components/TokenCard/TokenCard'
 import { mapGetters, mapActions } from "vuex"
 import { StatusType } from "../utilities"
 import NavBar from '../components/NavBar/NavBar'
-import TokenCard from '../components/TokenCard/TokenCard'
+import EffectCards from "../components/EffectCards/EffectCards.vue"
 
 export default {
-  name: "SendNFT",
+  name: "AddEffect",
 
   components: {
     Spinner,
     NavBar,
+    EffectCards,
     TokenCard,
   },
 
@@ -77,11 +80,19 @@ export default {
     }
   },
 
+
+  mounted() {
+    this.setEffects()
+  },
+
   computed: {
     ...mapGetters([
       'getAllNFTs',
       'getNftsAreLoading',
       'getStatus',
+      'getEffects',
+      'getEffectChoice',
+      'getDeployedPictureMeta',
     ]),
     getNav() {
       return [
@@ -99,16 +110,11 @@ export default {
       return (idx) => this.nftObj.token_id.indexOf(idx) !== -1
     },
     isNFTApproved() {
-      return (NFTComputedData) => {
-        let getKeyLength = 0
-
-        if (this.getAllNFTs && NFTComputedData) {
-          const tokenData = this.getAllNFTs.find((item) => item.token_id === NFTComputedData.token_id)
-          getKeyLength = tokenData ? Object.keys(tokenData.approved_account_ids).length : 0
-        }
-
+      return this.nftObj.token_id.some((token) => {
+        const tokenData = this.getAllNFTs.find((item) => item.token_id === token)
+        const getKeyLength = Object.keys(tokenData.approved_account_ids).length
         return getKeyLength === 0
-      }
+      })
     },
     statusText() {
       switch (this.getStatus) {
@@ -145,16 +151,10 @@ export default {
     getAllNFTs: {
       handler(value) {
         const data = value.find((item) => item.token_id === this.$route.params.id)
-        console.log(data, 'data')
-        console.log(value, 'getAllNFTs')
         if (this.getAllNFTs && data) {
           this.NFTData = data
           this.nftObj.media = data.metadata.media
-        } else {
-
-          // todo? router do not work in before each of router.js properly, in case, nft was approved and then sended,
-          // cause near contract init earlier then app
-          this.$router.push({ name: 'ChooseNFT' })
+          this.passNFT(this.NFTComputedData.metadata)
         }
       },
     },
@@ -162,39 +162,23 @@ export default {
 
   methods: {
     ...mapActions([
-      'setNFTApproveId',
-      'sendNFTByToken',
-      'getNFTByToken',
+      'setEffects',
+      'setEffectChoice',
+      'setResult',
+      'setDeployedPictureMeta',
+      'passNFT',
+      'createNewRandomNFT',
     ]),
-    chooseNFT(tokenId) {
-      const index = this.nftObj.token_id.findIndex((_) => _ === tokenId)
-
-      // need smart contracts for bundling NFT
-      if (this.nftObj.token_id && this.nftObj.token_id.length > 0) {
-        if (tokenId === this.nftObj.token_id[0]) {
-          this.nftObj.token_id.splice(index, 1)
-        }
+    async chooseEffect(id) {
+      if (this.getEffectChoice && id === this.getEffectChoice) {
+        this.setEffectChoice(null)
       } else {
-        this.nftObj.token_id.push(tokenId)
+        this.setEffectChoice(id)
       }
-
-      // Currently approving multiple NFTs is problem, for this need smart contract, bundle approve + bundle sending
-
-      // if (index > -1) {
-      //   this.nftObj.token_id.splice(index, 1)
-      // } else {
-      //   this.nftObj.token_id.push(tokenId)
-      // }
     },
-    approveNFTHandler() {
-      this.setNFTApproveId(this.NFTComputedData.token_id)
-    },
-    sendNFTHandler() {
-      this.sendNFTByToken({
-        receiver: this.nftObj.receiver_id,
-        token_id: this.NFTComputedData.token_id
-      })
-    }
   },
 }
 </script>
+
+<style lang="scss">
+</style>

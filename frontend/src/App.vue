@@ -1,61 +1,76 @@
 <template>
   <div id="root">
     <notifications group="foo" />
-    <nav-bar v-if="isSignedIn" />
 
-    <div class="container">
-      <router-view />
+    <div v-if="getContractLoading" class="loading-container loading-container--app">
+      <spinner :size="92" color="#000" />
     </div>
+
+    <template v-else>
+
+      <head-bar
+        v-if="isSignedIn"
+      />
+
+      <div class="container">
+        <router-view />
+      </div>
+
+    </template>
   </div>
 </template>
 
 <script>
-import NavBar from './components/NavBar/NavBar.vue'
-import getConfig from "./nearNets"
-import { mapActions } from "vuex"
-
-const nearConfig = getConfig(process.env.NODE_ENV || "development")
-console.log(
-  `networkId:${nearConfig.networkId} CONTRACT_NAME:${nearConfig.contractName}`
-)
-window.networkId = nearConfig.networkId
+import HeadBar from './components/HeadBar/HeadBar.vue'
+import Spinner from "./components/Spinner"
+import { mapActions, mapGetters } from "vuex"
 
 export default {
   name: "App",
+
   components: {
-    NavBar,
+    HeadBar,
+    Spinner,
   },
 
-  created() {
+  computed: {
+    ...mapGetters([
+      'getCurrentWallet',
+      'getContractLoading',
+      'getContract'
+    ]),
+    // checking for wallet and contract, until they loaded
+    isSignedIn() {
+      if (this.getCurrentWallet && this.getContract) {
+        return this.getCurrentWallet.isSignedIn()
+      }
+
+      return false
+    },
+  },
+
+  beforeMount() {
+    this.setIpfs()
     document.title = "nft-example.near_testing.testnet"
-
-    if (this.isSignedIn) {
-      this.setCurrentContract(window.contract)
-      this.setAccountId(window.accountId)
-
-      // getting all NFTs of currently signed user
-      this.getListOfNFT()
-    }
   },
 
-  async beforeMount() {
-    await this.setIpfs()
+  watch: {
+    isSignedIn: {
+      handler(value) {
+        console.log(value, 'value')
+        if (value) {
+          // getting all NFTs of currently signed user
+          this.getListOfNFT()
+        }
+      },
+    },
   },
 
   methods: {
     ...mapActions([
-      'setCurrentContract',
-      'setAccountId',
       'getListOfNFT',
       'setIpfs',
-      'setStatus',
     ]),
-  },
-
-  computed: {
-    isSignedIn() {
-      return window.walletConnection.isSignedIn()
-    },
   },
 }
 </script>

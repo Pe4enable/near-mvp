@@ -7,41 +7,47 @@
     </div>
     <main v-else>
       <div>
-        <h1 class="h1--no-logo">Send NFTs</h1>
+        <h1 class="h1--no-logo">Details of NFT</h1>
         <div
           class="form-nft-send form-nft__detail-page"
+          v-if="NFTComputedData && NFTComputedData.metadata"
         >
-          <div
-            class="nft-cards"
-            v-if="NFTComputedData && NFTComputedData.metadata"
-          >
+          <div class="nft-cards">
             <token-card
               :metadata="NFTComputedData"
               :edit-available="false"
             />
           </div>
           <div class="form-nft-send__inputs">
-            <div>
-              <span class="form-nft-send__inputs-title">Receiver ID</span>
-              <input
-                type="text"
-                placeholder="Receiver ID"
-                class="input form-nft__input"
-                v-model="nftObj.receiver_id"
-              >
-            </div>
+            <span class="form-nft-send__inputs-title">Title</span>
+            <input
+              type="text"
+              placeholder="NFT title"
+              class="input form-nft__input"
+              v-model="NFTComputedData.metadata.title"
+            >
+            <span class="form-nft-send__inputs-title">Description</span>
+            <textarea
+              type="text"
+              placeholder="NFT description"
+              class="input form-nft__input form-nft__textarea"
+              v-model="NFTComputedData.metadata.description"
+            />
             <div class="form-nft__bottom">
               <button
                 class="main-btn"
-                @click="approveNFTHandler"
-                :disabled="!isNFTApproved(NFTComputedData)"
-              >Approve</button>
+                :disabled="true"
+              >Burn NFT</button>
+              <router-link
+                class="main-btn"
+                :to="{ name: 'SendNFT', params: { id: NFTComputedData.token_id }}"
+              >Send NFT</router-link>
               <button
                 class="main-btn"
                 type="submit"
-                :disabled="isNFTApproved(NFTComputedData)"
-                @click="sendNFTHandler"
-              >Send</button>
+                :disabled="true"
+                @click="changeFormat"
+              >Change Format</button>
             </div>
           </div>
         </div>
@@ -58,7 +64,7 @@ import NavBar from '../components/NavBar/NavBar'
 import TokenCard from '../components/TokenCard/TokenCard'
 
 export default {
-  name: "SendNFT",
+  name: "NFTDetails",
 
   components: {
     Spinner,
@@ -145,16 +151,9 @@ export default {
     getAllNFTs: {
       handler(value) {
         const data = value.find((item) => item.token_id === this.$route.params.id)
-        console.log(data, 'data')
-        console.log(value, 'getAllNFTs')
         if (this.getAllNFTs && data) {
           this.NFTData = data
           this.nftObj.media = data.metadata.media
-        } else {
-
-          // todo? router do not work in before each of router.js properly, in case, nft was approved and then sended,
-          // cause near contract init earlier then app
-          this.$router.push({ name: 'ChooseNFT' })
         }
       },
     },
@@ -166,35 +165,9 @@ export default {
       'sendNFTByToken',
       'getNFTByToken',
     ]),
-    chooseNFT(tokenId) {
-      const index = this.nftObj.token_id.findIndex((_) => _ === tokenId)
-
-      // need smart contracts for bundling NFT
-      if (this.nftObj.token_id && this.nftObj.token_id.length > 0) {
-        if (tokenId === this.nftObj.token_id[0]) {
-          this.nftObj.token_id.splice(index, 1)
-        }
-      } else {
-        this.nftObj.token_id.push(tokenId)
-      }
-
-      // Currently approving multiple NFTs is problem, for this need smart contract, bundle approve + bundle sending
-
-      // if (index > -1) {
-      //   this.nftObj.token_id.splice(index, 1)
-      // } else {
-      //   this.nftObj.token_id.push(tokenId)
-      // }
+    changeFormat() {
+      console.log('changeFormat')
     },
-    approveNFTHandler() {
-      this.setNFTApproveId(this.NFTComputedData.token_id)
-    },
-    sendNFTHandler() {
-      this.sendNFTByToken({
-        receiver: this.nftObj.receiver_id,
-        token_id: this.NFTComputedData.token_id
-      })
-    }
   },
 }
 </script>

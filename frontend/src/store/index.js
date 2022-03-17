@@ -8,14 +8,12 @@ import {
   createRandomNft,
   createUsualNFT,
   sendNFT,
+  getImageForTokenByURI,
 } from "../near_utilities"
 
 
-import {StatusType} from "../utilities"
+import {StatusType, getIPFS} from "../utilities"
 import {getEffects, modifyPicture} from "../api"
-
-// too heavy, this one adding 2mb to builded bundle-js (total 2.5mb)
-import * as IPFS from "ipfs-core"
 
 Vue.use(Vuex)
 
@@ -26,6 +24,7 @@ const store = new Vuex.Store({
     allNFTs: [],
     nftChoice: [],
     nftLoading: false,
+    contractLoading: false,
     contract: null,
     account_id: null,
     effects: [],
@@ -33,9 +32,14 @@ const store = new Vuex.Store({
     deployedPictureMeta: null,
     nftTransactionHash: null,
     globalLoading: false,
-    result: null,
-    NFT: null,
-    status: StatusType.ChoosingParameters
+    imageResult: null,
+    NFTdata: null,
+    arrayNFTs: null,
+    NFTsPool: [],
+    NFTlimit: 15,
+    status: StatusType.ChoosingParameters,
+    wallet: null,
+    balance: null,
   },
   mutations: {
     setIpfs (state, ipfsInstance) {
@@ -50,8 +54,8 @@ const store = new Vuex.Store({
     setEffectChoice(state, choice) {
       state.effectChoice = choice
     },
-    setResult (state, blob) {
-      state.result = blob
+    setImageResult (state, blob) {
+      state.imageResult = blob
     },
     setNFTsLoading (state, blob) {
       state.nftLoading = blob
@@ -69,22 +73,54 @@ const store = new Vuex.Store({
       state.allNFTs = payload
     },
     setNFT (state, payload) {
-      state.NFT = payload
+      state.NFTdata = payload
+    },
+    setNFTArray (state, payload) {
+      state.arrayNFTs = payload
+    },
+    SET_NFT_LIMIT (state, payload) {
+      state.NFTlimit = payload
+    },
+    SET_CURRENT_CONTRACT_LOADING (state, payload) {
+      state.contractLoading = payload
     },
     SET_CURRENT_CONTRACT (state, payload) {
       state.contract = payload
     },
+    SET_TOKEN_IMAGE (state, tokenInfo) {
+      state.NFTsPool.push(tokenInfo)
+    },
+    SET_CURRENT_WALLET (state, payload) {
+      state.wallet = payload
+    },
     SET_ACCOUNT_ID (state, payload) {
       state.account_id = payload
-    }
+    },
+    SET_CURRENT_BALANCE (state, payload) {
+      state.balance = payload
+    },
   },
   actions: {
+    passNFTlimit ({commit}, data) {
+      commit('SET_NFT_LIMIT', data)
+    },
     passNFT ({commit}, data) {
+      console.log(data, 'passNFT')
       commit('setNFT', data)
+    },
+    passChosenTokens ({commit}, data) {
+      console.log(data, 'passNFT')
+
+      sessionStorage.setItem("tokens_id", data)
+      commit('setNFTArray', data)
     },
     // async setBalance ({commit, state}) {
     //   commit('setAccountBalance', await getAccountBalance(state.ethersProvider, state.accountAddress))
     // },
+    setContractLoading ({commit}, data) {
+      console.log(data , 'setContractLoading')
+      commit('SET_CURRENT_CONTRACT_LOADING', data)
+    },
     setEffectChoice ({commit}, choice) {
       commit('setEffectChoice', choice)
     },
@@ -97,31 +133,39 @@ const store = new Vuex.Store({
     setStatus ({commit}, status) {
       commit("setStatus", status)
     },
-    setCurrentContract ({commit}, contract) {
-      commit('SET_CURRENT_CONTRACT', contract)
-    },
-    setAccountId ({commit}, id) {
-      commit('SET_ACCOUNT_ID', id)
-    },
     async setIpfs ({commit}) {
-      commit('setIpfs', await IPFS.create())
+      const ipfs = await getIPFS()
+      commit('setIpfs', await ipfs.create())
     },
     async setEffects ({commit}) {
       commit('setEffects', await getEffects())
     },
-    async setResult ({commit, dispatch, getters}) {
+    async setResult ({commit, dispatch, getters}, type) {
       dispatch('setStatus', StatusType.Applying)
-      commit('setResult', await modifyPicture(getters.getNFTforModification.media, getters.getEffectChoice))
+      console.log(getters, 'set RESULT')
+      if (type === "base64") {
+        commit('setImageResult', getters.getNFTforModification.media)
+      } else {
+        commit('setImageResult', await modifyPicture(getters.getNFTforModification.media, getters.getEffectChoice))
+      }
     },
-    async setDeployedPictureMeta ({commit, dispatch, getters}) {
+    async setDeployedPictureMeta ({commit, dispatch, getters}, type) {
       dispatch('setStatus', StatusType.DeployingToIPFS)
-      commit('setDeployedPictureMeta', await deployNFTtoIPFS(getters.getIpfs, getters.getResult, getters.getNFTforModification))
+      console.log('set setDeployedPictureMeta')
+      commit('setDeployedPictureMeta', await deployNFTtoIPFS(getters.getIpfs, getters.getResult, getters.getNFTforModification, type))
     },
     async getListOfNFT ({commit, dispatch, getters}) {
       dispatch('setNFTsLoading', true)
-      const result = await nftTokensForOwner({dispatch}, getters.getAccountId, getters.getContract)
-      console.log(result, 'result getListOfNFT')
+      console.log(getters, 'getters getListOfNFT')
+      const result = await nftTokensForOwner({dispatch}, getters.getAccountId, getters.getContract, getters.getNFTlimit)
       commit('passAllNFTs', result)
+    },
+    async setTokenImage ({commit,getters}, token) {
+      let url = null
+      if (getters.getIpfs) {
+        url = await getImageForTokenByURI(getters.getIpfs, token.metadata.media)
+      }
+      commit('SET_TOKEN_IMAGE', { tokenImage: url, token_id: token.token_id})
     },
     createNewRandomNFT ({getters, dispatch},  { token_id, metadata }) {
       dispatch('setStatus', StatusType.Minting)
@@ -140,22 +184,41 @@ const store = new Vuex.Store({
       dispatch('setStatus', StatusType.Approving)
       sendNFT(receiver, token_id, getters.getContract)
     },
+    // NEAR config settings
+    setCurrentContract ({commit}, contract) {
+      commit('SET_CURRENT_CONTRACT', contract)
+    },
+    setNearWalletConnection ({commit}, wallet) {
+      commit('SET_CURRENT_WALLET', wallet)
+    },
+    setAccountId ({commit}, id) {
+      commit('SET_ACCOUNT_ID', id)
+    },
+    setNearBalance ({commit}, balance) {
+      commit('SET_CURRENT_BALANCE', balance)
+    },
   },
   getters: {
     getEffects: state => state.effects,
-    getEffect: state => state.effects.filter(x => x.id === state.effectChoice) ? [0] : null,
+    getEffect: state => state.effects.find(x => x.id === state.effectChoice),
     getEffectChoice: state => state.effectChoice,
     getIpfs: state => state.ipfs,
-    getResult: state => state.result,
+    getResult: state => state.imageResult,
     getDeployedPictureMeta: state => state.deployedPictureMeta,
     getStatus: state => state.status,
     getTransactionHash: state => state.nftTransactionHash,
     getNftsAreLoading: state => state.nftLoading,
+    getContractLoading: state => state.contractLoading,
     getAccountId: state => state.account_id,
     getContract: state => state.contract,
+    getNFTlimit: (state) => state.NFTlimit,
     getAllNFTs: state => state.allNFTs,
-    getNFTforModification: (state) => state.NFT
-  }
+    getNFTsPool: state => state.NFTsPool,
+    getNFTforModification: (state) => state.NFTdata,
+    getNFTArray: (state) => state.arrayNFTs,
+    getCurrentWallet: (state) => state.wallet,
+    getCurrentWalletBalance: (state) => state.balance,
+  },
 })
 
 export default store
