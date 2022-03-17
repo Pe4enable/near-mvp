@@ -1,6 +1,12 @@
 use near_sdk::collections::Vector;
+use near_sdk::{ext_contract, Gas, PromiseResult};
 use serde_derive::{Serialize, Deserialize};
 use crate::*;
+
+const GAS_FOR_RESOLVE_TRANSFER: Gas = Gas(10_000_000_000_000);
+const GAS_FOR_NFT_TRANSFER_CALL: Gas = Gas(25_000_000_000_000 + GAS_FOR_RESOLVE_TRANSFER.0);
+const MIN_GAS_FOR_NFT_TRANSFER_CALL: Gas = Gas(100_000_000_000_000);
+const NO_DEPOSIT: Balance = 0;
 
 #[near_bindgen]
 impl Contract {
@@ -21,7 +27,26 @@ impl Contract {
                 return true;
             }
             
-            token
+            let mut range_iterator = token.bundles.iter();
+            while let Some(bundle) = range_iterator.next() {
+                ext_nft::nft_transfer(
+                    caller_id.clone(),
+                    bundle.token_id.clone(),
+                    bundle.approval_id.clone(),
+                    None,
+                    bundle.contract.clone(), // contract account id
+                    NO_DEPOSIT, // yocto NEAR to attach
+                    GAS_FOR_NFT_TRANSFER_CALL // gas to attach
+                );
+            }
+
+            //we remove the token from the receiver
+            self.internal_remove_token_from_owner(&caller_id.clone(), &token_id);
+            //we refund the receiver any approved account IDs that they may have set on the token
+            refund_approved_account_ids(caller_id.clone(), &token.approved_account_ids);
+            //reset the approved account IDs to what they were before the transfer
+            token.approved_account_ids = approved_account_ids;
+
         //if there isn't a token object, it was burned and so we return true
         } else {
             //we refund the owner for releasing the storage used up by the approved account IDs
