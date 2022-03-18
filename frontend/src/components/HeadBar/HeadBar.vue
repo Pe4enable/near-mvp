@@ -2,7 +2,7 @@
   <div class="headbar">
     <nav class="headbar__nav">
       <router-link :to="{ name: 'ChooseNFT' }">
-        <img src="../../assets/logo.jpg">
+        <img src="@/assets/logo.jpg">
       </router-link>
     </nav>
     <div class="headbar__acc">
@@ -22,7 +22,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { logout } from "../../nearConfig"
+import { logout } from "@/nearConfig"
 
 export default {
   name: "HeadBar",

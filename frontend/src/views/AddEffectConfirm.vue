@@ -77,11 +77,11 @@
 </template>
 
 <script>
-import Spinner from "../components/Spinner"
-import TokenCard from '../components/TokenCard/TokenCard'
+import Spinner from "@/components/Spinner"
+import TokenCard from '@/components/TokenCard/TokenCard'
 import { mapGetters, mapActions } from "vuex"
-import { StatusType } from "../utilities"
-import NavBar from '../components/NavBar/NavBar'
+import { StatusType } from "@/utilities"
+import NavBar from '@/components/NavBar/NavBar'
 
 export default {
   name: "AddEffectConfirm",

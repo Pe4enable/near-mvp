@@ -51,11 +51,11 @@
 </template>
 
 <script>
-import Spinner from "../components/Spinner"
+import Spinner from "@/components/Spinner"
 import { mapGetters, mapActions } from "vuex"
-import { StatusType } from "../utilities"
-import NavBar from '../components/NavBar/NavBar'
-import TokenCard from '../components/TokenCard/TokenCard'
+import { StatusType } from "@/utilities"
+import NavBar from '@/components/NavBar/NavBar'
+import TokenCard from '@/components/TokenCard/TokenCard'
 
 export default {
   name: "SendNFT",

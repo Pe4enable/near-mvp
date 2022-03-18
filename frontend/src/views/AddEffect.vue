@@ -52,12 +52,12 @@
 </template>
 
 <script>
-import Spinner from "../components/Spinner"
-import TokenCard from '../components/TokenCard/TokenCard'
+import Spinner from "@/components/Spinner"
+import TokenCard from '@/components/TokenCard/TokenCard'
 import { mapGetters, mapActions } from "vuex"
-import { StatusType } from "../utilities"
-import NavBar from '../components/NavBar/NavBar'
-import EffectCards from "../components/EffectCards/EffectCards.vue"
+import { StatusType } from "@/utilities"
+import NavBar from '@/components/NavBar/NavBar'
+import EffectCards from "@/components/EffectCards/EffectCards.vue"
 
 export default {
   name: "AddEffect",

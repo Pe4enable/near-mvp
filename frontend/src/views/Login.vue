@@ -8,13 +8,13 @@
         <button class="main-btn" @click="login">Sign in</button>
       </p>
     </div>
-    <img src="../assets/home_img.jpg" style="height: 30%;  border-radius:20%;" >
+    <img src="@/assets/home_img.jpg" style="height: 30%;  border-radius:20%;" >
   </div>
 </template>
 
 <script>
 import { mapGetters } from "vuex"
-import { login } from "../nearConfig"
+import { login } from "@/nearConfig"
 
 export default {
   name: "Login",

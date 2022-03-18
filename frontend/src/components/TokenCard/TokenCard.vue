@@ -16,7 +16,7 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex"
-import { placeholder } from '../../utilities'
+import { placeholder } from '@/utilities'
 
 export default {
   name: "TokenCard",

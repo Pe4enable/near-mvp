@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import {shorten, placeholder} from "../../utilities"
+import {shorten, placeholder} from "@/utilities"
 
 export default {
   name: "EffectCards",
