@@ -106,6 +106,8 @@ export default {
       'getStatus',
       'getAllNFTs',
       'getNFTArray',
+      'getAccountId',
+      'getDeployedPictureMeta',
     ]),
     statusText() {
       switch (this.getStatus) {
@@ -173,7 +175,7 @@ export default {
           media: this.getDeployedPictureMeta,
           copies: 1,
         },
-        bundles: this.getAllNFTs.map((item) => ({ ...item, contract: "" })),
+        bundles: this.getAllNFTs.map((item) => ({ ...item, contract: this.getAccountId, approval_id: 0 })),
       })
     },
   },
