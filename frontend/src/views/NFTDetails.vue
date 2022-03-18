@@ -48,6 +48,11 @@
                 :disabled="true"
                 @click="changeFormat"
               >Change Format</button>
+              <button
+                class="main-btn"
+                type="submit"
+                @click="unbundleNFT"
+              >Unbundle NFT</button>
             </div>
           </div>
         </div>
@@ -164,7 +169,11 @@ export default {
       'setNFTApproveId',
       'sendNFTByToken',
       'getNFTByToken',
+      'triggerUnbundleNFT',
     ]),
+    unbundleNFT() {
+      this.triggerUnbundleNFT(this.NFTComputedData.token_id)
+    },
     changeFormat() {
       console.log('changeFormat')
     },

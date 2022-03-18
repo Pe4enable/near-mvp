@@ -22,7 +22,7 @@
           />
         </div>
       </div>
-      <button @click="loadMoreNFT" class="main-btn">Get more NFT</button>
+      <button v-if="getAllNFTs && getAllNFTs.length" @click="loadMoreNFT" class="main-btn">Get more NFT</button>
     </main>
   </div>
 </template>

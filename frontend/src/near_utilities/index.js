@@ -43,7 +43,6 @@ export function createUsualNFT(token_id, metadata, receiver_id, contract) {
   }
 }
 
-// for creating new NFTs BY inputs FORM
 export function createBundleNFT(token_id, metadata, bundles, contract) {
   try {
     contract
@@ -52,9 +51,23 @@ export function createBundleNFT(token_id, metadata, bundles, contract) {
         metadata,
         bundles,
       }, "300000000000000", '9610000000000000000000')
-      .then((data) => {
-        console.log(data, 'getNftTotal')
-      })
+  } catch(err) {
+    console.error(err, '')
+    Vue.notify({
+      group: 'foo',
+      title: 'Important message',
+      text: `Error - ${err}`,
+    })
+  }
+}
+
+// for creating new NFTs BY inputs FORM
+export function unbundleNFT(token_id, contract) {
+  try {
+    contract
+      .nft_unbundle({
+        token_id,
+      }, "300000000000000", '1')
   } catch(err) {
     console.error(err, '')
     Vue.notify({
@@ -67,6 +80,7 @@ export function createBundleNFT(token_id, metadata, bundles, contract) {
 
 export async function nftTokensForOwner({dispatch}, account_id, contract, limit) {
   let NFTs = []
+  console.log(account_id, contract, 'tokens')
   try {
     await contract
       .nft_tokens_for_owner({ account_id, limit })
@@ -92,9 +106,6 @@ export function approveNFT(account_id, token_id, contract) {
         account_id,
         token_id,
       }, "300000000000000", '520000000000000000000')
-      .then((data) => {
-        console.log(data, 'approveNFT')
-      })
   } catch(err) {
     console.error(err, '')
     Vue.notify({

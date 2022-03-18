@@ -42,7 +42,7 @@
           <button
             class="main-btn"
             type="submit"
-            @click="bundleNFTs"
+            @click.prevent="bundleNFTs"
           >Submit</button>
         </div>
       </form>
@@ -107,6 +107,7 @@ export default {
       'getNFTArray',
       'getAccountId',
       'getDeployedPictureMeta',
+      'getContract',
     ]),
     statusText() {
       switch (this.getStatus) {
@@ -166,6 +167,10 @@ export default {
       await this.setResult('base64')
       await this.setDeployedPictureMeta('base64')
       console.log(this.getDeployedPictureMeta, 'this.getDeployedPictureMeta')
+      const bundleArr = this.getNFTArray.map((token) => {
+        return this.getAllNFTs.find((item) => item.token_id === token)
+      }).filter(Boolean)
+
       this.createNewBundleNFT({
         token_id: `token-${Date.now()}`,
         metadata: {
@@ -174,7 +179,7 @@ export default {
           media: this.getDeployedPictureMeta,
           copies: 1,
         },
-        bundles: this.getAllNFTs.map((item) => ({ ...item, contract: this.getAccountId, approval_id: 0 })),
+        bundles: bundleArr.map((item) => ({ ...item, contract: 'nft-example.near_testing.testnet', approval_id: 0 })),
       })
     },
   },

@@ -49,6 +49,10 @@ export default {
     },
   },
 
+  mounted() {
+    console.log(this.getContract2, 'contract')
+  },
+
   beforeMount() {
     this.setIpfs()
     document.title = "nft-example.near_testing.testnet"

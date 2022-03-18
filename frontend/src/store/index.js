@@ -8,6 +8,7 @@ import {
   createRandomNft,
   createUsualNFT,
   createBundleNFT,
+  unbundleNFT,
   sendNFT,
   getImageForTokenByURI,
 } from "../near_utilities"
@@ -27,6 +28,7 @@ const store = new Vuex.Store({
     nftLoading: false,
     contractLoading: false,
     contract: null,
+    contract2: null,
     account_id: null,
     effects: [],
     effectChoice: null,
@@ -100,6 +102,9 @@ const store = new Vuex.Store({
     SET_CURRENT_BALANCE (state, payload) {
       state.balance = payload
     },
+    SET_CURRENT_CONTRACT2 (state, payload) {
+      state.contract2 = payload
+    },
   },
   actions: {
     passNFTlimit ({commit}, data) {
@@ -158,7 +163,7 @@ const store = new Vuex.Store({
     async getListOfNFT ({commit, dispatch, getters}) {
       dispatch('setNFTsLoading', true)
       console.log(getters, 'getters getListOfNFT')
-      const result = await nftTokensForOwner({dispatch}, getters.getAccountId, getters.getContract, getters.getNFTlimit)
+      const result = await nftTokensForOwner({dispatch}, getters.getAccountId, getters.getContract2, getters.getNFTlimit)
       commit('passAllNFTs', result)
     },
     async setTokenImage ({commit,getters}, token) {
@@ -183,9 +188,14 @@ const store = new Vuex.Store({
       dispatch('setStatus', StatusType.Minting)
       createBundleNFT(token_id, metadata, bundles, getters.getContract)
     },
+    triggerUnbundleNFT ({getters, dispatch},  token_id) {
+      console.log(getters.getContract, 'result getters.getContract')
+      dispatch('setStatus', StatusType.Minting)
+      unbundleNFT(token_id, getters.getContract)
+    },
     setNFTApproveId ({getters, dispatch}, token_id) {
       dispatch('setStatus', StatusType.Approving)
-      approveNFT(getters.getAccountId, token_id, getters.getContract)
+      approveNFT('nft-example5.pe4en.testnet', token_id, getters.getContract2)
     },
     sendNFTByToken ({getters, dispatch}, { receiver, token_id }) {
       dispatch('setStatus', StatusType.Approving)
@@ -194,6 +204,9 @@ const store = new Vuex.Store({
     // NEAR config settings
     setCurrentContract ({commit}, contract) {
       commit('SET_CURRENT_CONTRACT', contract)
+    },
+    setCurrentContract2 ({commit}, contract) {
+      commit('SET_CURRENT_CONTRACT2', contract)
     },
     setNearWalletConnection ({commit}, wallet) {
       commit('SET_CURRENT_WALLET', wallet)
@@ -218,6 +231,7 @@ const store = new Vuex.Store({
     getContractLoading: state => state.contractLoading,
     getAccountId: state => state.account_id,
     getContract: state => state.contract,
+    getContract2: state => state.contract2,
     getNFTlimit: (state) => state.NFTlimit,
     getAllNFTs: state => state.allNFTs,
     getNFTsPool: state => state.NFTsPool,
