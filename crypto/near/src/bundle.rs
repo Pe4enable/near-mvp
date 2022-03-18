@@ -5,6 +5,7 @@ const GAS_FOR_RESOLVE_TRANSFER: Gas = Gas(10_000_000_000_000);
 const GAS_FOR_NFT_TRANSFER_CALL: Gas = Gas(25_000_000_000_000 + GAS_FOR_RESOLVE_TRANSFER.0);
 const MIN_GAS_FOR_NFT_TRANSFER_CALL: Gas = Gas(100_000_000_000_000);
 const NO_DEPOSIT: Balance = 0;
+const DEPOSIT: Balance = 1;
 
 #[ext_contract(ext_nft)]
 trait NFT {
@@ -68,7 +69,7 @@ impl Contract {
                 bundle.approval_id.clone(),
                 None,
                 bundle.contract.clone(), // contract account id
-                NO_DEPOSIT, // yocto NEAR to attach
+                DEPOSIT, // yocto NEAR to attach
                 GAS_FOR_NFT_TRANSFER_CALL // gas to attach
             );
         }
