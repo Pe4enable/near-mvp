@@ -179,6 +179,7 @@ const store = new Vuex.Store({
     },
     createNewBundleNFT ({getters, dispatch},  { token_id, metadata, bundles }) {
       console.log(token_id, metadata, 'result createNewUsualNFT')
+      console.log(getters.getContract, 'result getters.getContract')
       dispatch('setStatus', StatusType.Minting)
       createBundleNFT(token_id, metadata, bundles, getters.getContract)
     },

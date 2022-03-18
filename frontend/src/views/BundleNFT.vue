@@ -173,7 +173,7 @@ export default {
           media: this.getDeployedPictureMeta,
           copies: 1,
         },
-        bundles: this.getAllNFTs,
+        bundles: this.getAllNFTs.map((item) => ({ ...item, contract: "" })),
       })
     },
   },
