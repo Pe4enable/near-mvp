@@ -134,7 +134,7 @@ router.beforeEach(async (to, _from, next) => {
     router.push({ name: 'SendNFT' })
   }
 
-  if (tx_hash && ['ChooseNFT', 'CreateNFT', 'AddEffect', 'AddEffectConfirm'].includes(to.name)) {
+  if (tx_hash && ['ChooseNFT', 'BundleNFT', 'NFTDetails', 'CreateNFT', 'AddEffect', 'AddEffectConfirm'].includes(to.name)) {
     router.push({ name: 'ChooseNFT' })
     passResult(tx_hash, account_id, to.name)
   }

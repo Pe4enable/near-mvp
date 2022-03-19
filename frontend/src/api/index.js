@@ -17,7 +17,7 @@ export async function getEffects() {
 }
 
 export async function modifyPicture (objectURL, effectId) {
-  console.log(objectURL, effectId, 'modifyPicture')
+  console.log(objectURL, 'object url')
   let result = await api.post(`/effects/applyWithImgUrl/${effectId}?img_url=${objectURL}`, "", { 
     headers: { 
       'accept': 'image/gif', 
@@ -27,15 +27,25 @@ export async function modifyPicture (objectURL, effectId) {
   })
   const item = URL.createObjectURL(result.data)
 
-  console.log(item, 'objectURL')
+  return item
+}
+
+// hardcode until back fix new api
+export async function modifyTransferPicture (objectBase, effectId) {
+  let result = await api.post(`/effects/applyWithImgUrl/${effectId}?img_url='https://upload.wikimedia.org/wikipedia/commons/a/af/VitalikButerinProfile.jpg'`, "", { 
+    headers: {
+      'accept': 'image/gif', 
+      'Content-Type': 'text/html', 
+    }, 
+    responseType: 'blob' 
+  })
+  const item = URL.createObjectURL(result.data)
 
   return item
 }
 
-export async function getPicture (objectURL, effectId) {
-  console.log(objectURL, effectId, 'modifyPicture')
+export async function getPicture (objectURL) {
   let result = await api.get(`${objectURL}`,)
-  console.log(result, 'RESULT')
 
   return result.url
 }

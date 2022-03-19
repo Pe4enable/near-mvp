@@ -15,7 +15,7 @@ import {
 
 
 import {StatusType, getIPFS} from "../utilities"
-import {getEffects, modifyPicture} from "../api"
+import {getEffects, modifyPicture, modifyTransferPicture} from "../api"
 
 Vue.use(Vuex)
 
@@ -24,11 +24,13 @@ const store = new Vuex.Store({
     ipfs: null,
     accountBalance: null,
     allNFTs: [],
+    NFTsTotal: 0,
+    NFTsByContract: [],
     nftChoice: [],
     nftLoading: false,
     contractLoading: false,
     contract: null,
-    contract2: null,
+    bundle_contract: null,
     account_id: null,
     effects: [],
     effectChoice: null,
@@ -43,6 +45,9 @@ const store = new Vuex.Store({
     status: StatusType.ChoosingParameters,
     wallet: null,
     balance: null,
+    effectModalStatus: false,
+    droppedImage: null,
+    nearAccount: null,
   },
   mutations: {
     setIpfs (state, ipfsInstance) {
@@ -81,6 +86,13 @@ const store = new Vuex.Store({
     setNFTArray (state, payload) {
       state.arrayNFTs = payload
     },
+    SET_CURRENT_CONTRACT_NFT (state, payload) {
+      // this one for main page rendering, contract separated data
+      state.NFTsByContract.push(payload)
+
+      // this one, for details pages rendering purposes
+      state.allNFTs.push.apply(state.allNFTs, payload.NFTS)
+    },
     SET_NFT_LIMIT (state, payload) {
       state.NFTlimit = payload
     },
@@ -102,8 +114,20 @@ const store = new Vuex.Store({
     SET_CURRENT_BALANCE (state, payload) {
       state.balance = payload
     },
-    SET_CURRENT_CONTRACT2 (state, payload) {
-      state.contract2 = payload
+    SET_CURRENT_BUNDLE_CONTRACT (state, payload) {
+      state.bundle_contract = payload
+    },
+    SET_NFT_COUNTER (state, payload) {
+      state.NFTsTotal += payload
+    },
+    SET_EFFECT_MODAL (state, payload) {
+      state.effectModalStatus = payload
+    },
+    SET_DROPPED_IMAGE (state, payload) {
+      state.droppedImage = payload
+    },
+    SET_NEAR_ACCOUNT (state, payload) {
+      state.nearAccount = payload
     },
   },
   actions: {
@@ -111,12 +135,9 @@ const store = new Vuex.Store({
       commit('SET_NFT_LIMIT', data)
     },
     passNFT ({commit}, data) {
-      console.log(data, 'passNFT')
       commit('setNFT', data)
     },
     passChosenTokens ({commit}, data) {
-      console.log(data, 'passNFT')
-
       sessionStorage.setItem("tokens_id", data)
       commit('setNFTArray', data)
     },
@@ -124,7 +145,6 @@ const store = new Vuex.Store({
     //   commit('setAccountBalance', await getAccountBalance(state.ethersProvider, state.accountAddress))
     // },
     setContractLoading ({commit}, data) {
-      console.log(data , 'setContractLoading')
       commit('SET_CURRENT_CONTRACT_LOADING', data)
     },
     setEffectChoice ({commit}, choice) {
@@ -148,65 +168,81 @@ const store = new Vuex.Store({
     },
     async setResult ({commit, dispatch, getters}, type) {
       dispatch('setStatus', StatusType.Applying)
-      console.log(getters, 'set RESULT')
       if (type === "base64") {
         commit('setImageResult', getters.getNFTforModification.media)
       } else {
+        console.log(getters.getNFTforModification.media, 'getters.getNFTforModification.media')
         commit('setImageResult', await modifyPicture(getters.getNFTforModification.media, getters.getEffectChoice))
       }
     },
+    async setStyleResult ({commit, dispatch, getters}) {
+      dispatch('setStatus', StatusType.Applying)
+      commit('setImageResult', await modifyTransferPicture(getters.getDroppedImage, getters.getEffectChoice))
+    },
     async setDeployedPictureMeta ({commit, dispatch, getters}, type) {
       dispatch('setStatus', StatusType.DeployingToIPFS)
-      console.log('set setDeployedPictureMeta')
       commit('setDeployedPictureMeta', await deployNFTtoIPFS(getters.getIpfs, getters.getResult, getters.getNFTforModification, type))
     },
     async getListOfNFT ({commit, dispatch, getters}) {
       dispatch('setNFTsLoading', true)
-      console.log(getters, 'getters getListOfNFT')
-      const result = await nftTokensForOwner({dispatch}, getters.getAccountId, getters.getContract2, getters.getNFTlimit)
+      const result = await nftTokensForOwner({dispatch}, getters.getAccountId, getters.getContract, getters.getNFTlimit)
+      // const result = await nftTokensForOwner({dispatch}, 'nft-example6.pe4en.testnet', getters.getContract2, getters.getNFTlimit)
       commit('passAllNFTs', result)
     },
-    async setTokenImage ({commit,getters}, token) {
+    async setTokenImage ({commit, getters}, token) {
       let url = null
       if (getters.getIpfs) {
         url = await getImageForTokenByURI(getters.getIpfs, token.metadata.media)
       }
-      commit('SET_TOKEN_IMAGE', { tokenImage: url, token_id: token.token_id})
+      token.url = url
+      commit('SET_TOKEN_IMAGE', { ...token })
+    },
+    async getIPFSimage ({getters}, media) {
+      let url = null
+      if (getters.getIpfs) {
+        url = await getImageForTokenByURI(getters.getIpfs, media)
+      }
+      return url
     },
     createNewRandomNFT ({getters, dispatch},  { token_id, metadata }) {
       dispatch('setStatus', StatusType.Minting)
       createRandomNft(token_id, metadata, getters.getAccountId, getters.getContract)
     },
     createNewUsualNFT ({getters, dispatch},  { token_id, metadata }) {
-      console.log(token_id, metadata, 'result createNewUsualNFT')
       dispatch('setStatus', StatusType.Minting)
       createUsualNFT(token_id, metadata, getters.getAccountId, getters.getContract)
     },
     createNewBundleNFT ({getters, dispatch},  { token_id, metadata, bundles }) {
-      console.log(token_id, metadata, 'result createNewUsualNFT')
-      console.log(getters.getContract, 'result getters.getContract')
       dispatch('setStatus', StatusType.Minting)
-      createBundleNFT(token_id, metadata, bundles, getters.getContract)
+      createBundleNFT(token_id, metadata, bundles, getters.getBundleContract)
     },
     triggerUnbundleNFT ({getters, dispatch},  token_id) {
-      console.log(getters.getContract, 'result getters.getContract')
       dispatch('setStatus', StatusType.Minting)
-      unbundleNFT(token_id, getters.getContract)
+      unbundleNFT(token_id, getters.getBundleContract)
     },
-    setNFTApproveId ({getters, dispatch}, token_id) {
+    setNFTApproveId ({getters, dispatch}, { approve_id, token_id }) {
       dispatch('setStatus', StatusType.Approving)
-      approveNFT('nft-example5.pe4en.testnet', token_id, getters.getContract2)
+      approveNFT(approve_id, token_id, getters.getContract)
     },
     sendNFTByToken ({getters, dispatch}, { receiver, token_id }) {
       dispatch('setStatus', StatusType.Approving)
       sendNFT(receiver, token_id, getters.getContract)
     },
+    pushNFTbyContract ({commit}, NFTS) {
+      commit('SET_CURRENT_CONTRACT_NFT', NFTS)
+    },
+    setEffectModal ({commit}, data) {
+      commit('SET_EFFECT_MODAL', data)
+    },
+    setDroppedImage ({commit}, data) {
+      commit('SET_DROPPED_IMAGE', data)
+    },
     // NEAR config settings
     setCurrentContract ({commit}, contract) {
       commit('SET_CURRENT_CONTRACT', contract)
     },
-    setCurrentContract2 ({commit}, contract) {
-      commit('SET_CURRENT_CONTRACT2', contract)
+    setCurrentBundleContract ({commit}, contract) {
+      commit('SET_CURRENT_BUNDLE_CONTRACT', contract)
     },
     setNearWalletConnection ({commit}, wallet) {
       commit('SET_CURRENT_WALLET', wallet)
@@ -216,6 +252,12 @@ const store = new Vuex.Store({
     },
     setNearBalance ({commit}, balance) {
       commit('SET_CURRENT_BALANCE', balance)
+    },
+    setNFTsCounter ({commit}, data) {
+      commit('SET_NFT_COUNTER', data)
+    },
+    setNearAccount ({commit}, data) {
+      commit('SET_NEAR_ACCOUNT', data)
     },
   },
   getters: {
@@ -231,14 +273,19 @@ const store = new Vuex.Store({
     getContractLoading: state => state.contractLoading,
     getAccountId: state => state.account_id,
     getContract: state => state.contract,
-    getContract2: state => state.contract2,
+    getBundleContract: state => state.bundle_contract,
     getNFTlimit: (state) => state.NFTlimit,
+    getNFTsTotal: (state) => state.NFTsTotal,
     getAllNFTs: state => state.allNFTs,
+    getNFTsByContract: state => state.NFTsByContract,
     getNFTsPool: state => state.NFTsPool,
     getNFTforModification: (state) => state.NFTdata,
     getNFTArray: (state) => state.arrayNFTs,
     getCurrentWallet: (state) => state.wallet,
     getCurrentWalletBalance: (state) => state.balance,
+    getEffectModalStatus: state => state.effectModalStatus,
+    getDroppedImage: state => state.droppedImage,
+    getNearAccount: state => state.nearAccount,
   },
 })
 

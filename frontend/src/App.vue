@@ -12,6 +12,8 @@
         v-if="isSignedIn"
       />
 
+      <effects-modal-template v-if="getEffectModalStatus" />
+
       <div class="container">
         <router-view />
       </div>
@@ -21,8 +23,9 @@
 </template>
 
 <script>
-import HeadBar from './components/HeadBar/HeadBar.vue'
-import Spinner from "./components/Spinner"
+import HeadBar from '@/components/HeadBar/HeadBar.vue'
+import Spinner from "@/components/Spinner"
+import EffectsModalTemplate from "@/components/EffectsModalTemplate/EffectsModalTemplate.vue"
 import { mapActions, mapGetters } from "vuex"
 
 export default {
@@ -31,13 +34,15 @@ export default {
   components: {
     HeadBar,
     Spinner,
+    EffectsModalTemplate,
   },
 
   computed: {
     ...mapGetters([
       'getCurrentWallet',
       'getContractLoading',
-      'getContract'
+      'getContract',
+      'getEffectModalStatus',
     ]),
     // checking for wallet and contract, until they loaded
     isSignedIn() {
@@ -49,25 +54,9 @@ export default {
     },
   },
 
-  mounted() {
-    console.log(this.getContract2, 'contract')
-  },
-
   beforeMount() {
     this.setIpfs()
     document.title = "nft-example.near_testing.testnet"
-  },
-
-  watch: {
-    isSignedIn: {
-      handler(value) {
-        console.log(value, 'value')
-        if (value) {
-          // getting all NFTs of currently signed user
-          this.getListOfNFT()
-        }
-      },
-    },
   },
 
   methods: {

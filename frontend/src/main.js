@@ -6,13 +6,13 @@ import Notifications from 'vue-notification'
 import IconComponent from './components/Icon'
 
 import { initContract } from "./nearConfig"
-import { initContract2 } from "./nearConfig2"
+// import { initContract2 } from "./nearConfig2"
 
 Vue.config.productionTip = false
 Vue.use(Notifications)
 Vue.component('Icon', IconComponent)
 
-initContract2(store)
+// initContract2(store)
 initContract(store)
   .then(() => {
     const user = store.getters.getCurrentWallet.isSignedIn()

@@ -7,7 +7,7 @@
     </div>
     <main v-else>
       <div>
-        <h1 class="h1--no-logo">Details of NFT</h1>
+        <h1 class="h1--no-logo">Details of <span v-if="hasBundles">Bundle</span> NFT</h1>
         <div
           class="form-nft-send form-nft__detail-page"
           v-if="NFTComputedData && NFTComputedData.metadata"
@@ -51,9 +51,27 @@
               <button
                 class="main-btn"
                 type="submit"
+                :disabled="!hasBundles"
                 @click="unbundleNFT"
               >Unbundle NFT</button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bundle-data" v-if="bundleNFTsComputedData">
+        <div class="nft-cards__contract-inner">
+          <div
+            class="nft-cards__contract__item nft-cards__contract__item--bundle-data"
+            v-for="item in bundleNFTsComputedData"
+            :key="item.token_id"
+          >
+            <h5>Token ID: <br> {{ item.token_id }}</h5>
+            <token-card
+              class="bundle-data__token"
+              :is-bundle="true"
+              :metadata="item"
+            />
           </div>
         </div>
       </div>
@@ -85,6 +103,7 @@ export default {
         media: '',
       },
       NFTData: {},
+      bundleNFTsData: [],
     }
   },
 
@@ -93,7 +112,14 @@ export default {
       'getAllNFTs',
       'getNftsAreLoading',
       'getStatus',
+      'getNearAccount',
+      'getContract',
+      'getAccountId',
+      'getBundleContract',
     ]),
+    bundleNFTsComputedData() {
+      return this.bundleNFTsData
+    },
     getNav() {
       return [
         {
@@ -103,23 +129,11 @@ export default {
         },
       ]
     },
+    hasBundles() {
+      return this.NFTComputedData && this.NFTComputedData.bundles && this.NFTComputedData.bundles.length
+    },
     NFTComputedData() {
       return this.getAllNFTs.find((item) => item.token_id === this.$route.params.id)
-    },
-    cardClass() {
-      return (idx) => this.nftObj.token_id.indexOf(idx) !== -1
-    },
-    isNFTApproved() {
-      return (NFTComputedData) => {
-        let getKeyLength = 0
-
-        if (this.getAllNFTs && NFTComputedData) {
-          const tokenData = this.getAllNFTs.find((item) => item.token_id === NFTComputedData.token_id)
-          getKeyLength = tokenData ? Object.keys(tokenData.approved_account_ids).length : 0
-        }
-
-        return getKeyLength === 0
-      }
     },
     statusText() {
       switch (this.getStatus) {
@@ -159,9 +173,21 @@ export default {
         if (this.getAllNFTs && data) {
           this.NFTData = data
           this.nftObj.media = data.metadata.media
+
+          if (this.NFTComputedData.bundles && this.NFTComputedData.bundles.length) {
+            this.loadBundlesNFTsData()
+          }
         }
       },
     },
+  },
+
+  mounted() {
+    if (this.NFTComputedData) {
+      if (this.NFTComputedData.bundles) {
+        this.loadBundlesNFTsData()
+      }
+    }
   },
 
   methods: {
@@ -171,6 +197,14 @@ export default {
       'getNFTByToken',
       'triggerUnbundleNFT',
     ]),
+    async loadBundlesNFTsData() {
+      const request = await this.getNearAccount.viewFunction(this.NFTComputedData.bundles[0].contract, 'nft_tokens_for_owner', { account_id: this.getBundleContract.contractId, limit: 30 })
+      console.log(request, 'REQUEST ! ! ! ! !  !! ! ')
+
+      this.bundleNFTsData = request.filter((item) => {
+        return this.NFTComputedData.bundles.find((bundleItem) => bundleItem.token_id === item.token_id)
+      })
+    },
     unbundleNFT() {
       this.triggerUnbundleNFT(this.NFTComputedData.token_id)
     },
@@ -180,3 +214,13 @@ export default {
   },
 }
 </script>
+
+<style scoped lang="scss">
+.bundle-data {
+  margin-top: 50px;
+}
+
+.bundle-data__token {
+  margin-right: 15px;
+}
+</style>

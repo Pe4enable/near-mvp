@@ -1,10 +1,12 @@
 /* eslint sort-imports: 'error' */
 /* eslint sort-keys: 'error' */
+import cross from '!svg-sprite-loader!@/assets/svg/icon-cross.svg'
 import near from '!svg-sprite-loader!@/assets/svg/near.svg'
 import pencil from '!svg-sprite-loader!@/assets/svg/icon-pencil.svg'
 import upload from '!svg-sprite-loader!@/assets/svg/icon-upload.svg'
 
 const ICONS = {
+  cross,
   near,
   pencil,
   upload,

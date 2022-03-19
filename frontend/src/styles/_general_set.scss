@@ -154,6 +154,10 @@ button, input {
 	}
 }
 
+.main-btn--choose {
+	margin-bottom: 20px;
+}
+
 @keyframes loader {
 	0% { transform: rotate(0deg) }
 	100% { transform: rotate(360deg) }
@@ -204,7 +208,7 @@ li {
 
 .form-nft {
   display: flex;
-  margin-bottom: 20px;
+  margin: 20px 0;
 }
 
 .form-ntf__inputs {

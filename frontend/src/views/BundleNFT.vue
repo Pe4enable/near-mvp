@@ -14,7 +14,7 @@
         <div
           v-for="item in getNFTsData"
           :key="item.token_id"
-          class="nft-cards__item"
+          class="nft-cards__contract__item"
         >
           <token-card
             :metadata="item"
@@ -25,7 +25,9 @@
       </div>
 
       <form class="form-nft">
-        <uploader @selected="setUploadedImg"/>
+        <uploader
+          @selected="setUploadedImg"
+        />
         <div class="form-ntf__inputs">
           <input
             type="text"
@@ -42,6 +44,7 @@
           <button
             class="main-btn"
             type="submit"
+            :disabled="!getDroppedImage"
             @click.prevent="bundleNFTs"
           >Submit</button>
         </div>
@@ -75,7 +78,6 @@ export default {
           title: 'NFT token 2 title',
           description: 'NFT token 2 description',
         },
-        receiver_id: '',
         token_id: [],
       },
       savedGreeting: "",
@@ -97,6 +99,7 @@ export default {
     } else {
       this.nftArray = sessionStorage.getItem('tokens_id').split(',')
     }
+    this.setEffects()
   },
 
   computed: {
@@ -107,7 +110,9 @@ export default {
       'getNFTArray',
       'getAccountId',
       'getDeployedPictureMeta',
+      'getDroppedImage',
       'getContract',
+      'getBundleContract',
     ]),
     statusText() {
       switch (this.getStatus) {
@@ -122,16 +127,17 @@ export default {
       case StatusType.Minted:
         return "NFT successfully Minted!"
       default:
-        return ""
+        return "Done"
       }
     },
     getNFTsData() {
+      // filter Boolean fixing error on loading of All NFTs by contract
+      // as order different on loading every time, some of NFT loading at the end
       if (this.getAllNFTs && this.getAllNFTs.length) {
         return this.nftArray.map((urlToken) => {
           const item = this.getAllNFTs.find((nftObj) => nftObj.token_id === urlToken)
-          console.log(item, 'ITEM')
           return item
-        })
+        }).filter(Boolean)
       }
       return []
     },
@@ -157,19 +163,26 @@ export default {
       'setResult',
       'setDeployedPictureMeta',
       'passNFT',
+      'setEffects',
     ]),
     setUploadedImg(src) {
-      console.log(src, 'SRC')
       this.nftObj.metadata.media = src 
       this.passNFT(this.nftObj.metadata)
     },
     async bundleNFTs() {
       await this.setResult('base64')
       await this.setDeployedPictureMeta('base64')
-      console.log(this.getDeployedPictureMeta, 'this.getDeployedPictureMeta')
-      const bundleArr = this.getNFTArray.map((token) => {
+      const bundleArr = this.nftArray.map((token) => {
         return this.getAllNFTs.find((item) => item.token_id === token)
       }).filter(Boolean)
+      console.log(bundleArr, 'this.this.bundleArr')
+
+      // TODO: make approval checking of ALL TOKENS, should be SAME
+      let approval_id = null
+
+      if (bundleArr[0].approved_account_ids) {
+        approval_id = bundleArr[0].approved_account_ids[this.getBundleContract.contractId]
+      }
 
       this.createNewBundleNFT({
         token_id: `token-${Date.now()}`,
@@ -179,7 +192,7 @@ export default {
           media: this.getDeployedPictureMeta,
           copies: 1,
         },
-        bundles: bundleArr.map((item) => ({ ...item, contract: 'nft-example.near_testing.testnet', approval_id: 0 })),
+        bundles: bundleArr.map((item) => ({ ...item, contract: this.getContract.contractId, approval_id })),
       })
     },
   },

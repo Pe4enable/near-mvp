@@ -22,7 +22,7 @@
 
     <img
       class="upload-region-component__img"
-      :src="imgSource"
+      :src="imageSrc || imgSource"
     >
 
     <input
@@ -35,10 +35,12 @@
 </template>
 
 <script>
+import { mapActions } from "vuex"
 export default {
   name: 'upload-region-component',
   props: {
-    centered: Boolean,
+    withEffects: Boolean,
+    imageSrc: String,
   },
   data() {
     return {
@@ -48,13 +50,20 @@ export default {
     }
   },
   methods: {
+    ...mapActions([
+      'setEffectModal',
+      'setDroppedImage',
+      'getIPFSimage',
+    ]),
     onFileSelected(event) {
       this.dragOver = false
       const img = event.target.files ? event.target.files[0] : null
-      console.log(img, 'files')
-      console.log(event, 'event')
       this.$refs.inputFile.value = null
       this.updateImage(img)
+
+      if (this.withEffects) {
+        this.setEffectModal(true)
+      }
     },
     buttonClick() {
       document.getElementById(this.id).click()
@@ -63,11 +72,9 @@ export default {
       const reader = new FileReader()
 
       reader.onload = (event) => {
-        console.log(img, 'onload')
-        console.log(this, 'this')
-        console.log(event, 'onload event')
         this.imgSource = event.target.result
         this.$emit('selected', this.imgSource)
+        this.setDroppedImage(this.imgSource)
       }
       console.log(this.imgSource, 'this.imgSource')
       reader.readAsDataURL(img)

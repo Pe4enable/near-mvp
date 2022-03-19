@@ -122,7 +122,7 @@ export function sendNFT(receiver_id, token_id, contract) {
       .nft_transfer({
         receiver_id,
         token_id,
-        approval_id: 0,
+        approval_id: 1,
         memo: 'testing'
       }, "300000000000000", '1')
       .then((data) => {
@@ -189,11 +189,10 @@ export function nftMetadata(contract) {
 }
 
 // todo: make v1 to v2, or rethink v1 for more effective implementation
-async function pushImageToIpfs(ipfsInstance, objectURL, type) {
+async function pushImageToIpfs(ipfsInstance, objectURL) {
   let cid = ''
   let cidV1 = ''
   let data = null
-  console.log(type, 'pushImageToIpfs type')
   await fetch(objectURL)
     .then(res => {
       console.log(res, 'buffer res')
@@ -205,18 +204,15 @@ async function pushImageToIpfs(ipfsInstance, objectURL, type) {
     })
   cid = await ipfsInstance.add(data)
   cidV1 = cid.path
-  console.log(cidV1, 'cidV1')
   return cidV1
 }
 
 async function pushObjectToIpfs(ipfsInstance, object) {
   let cid = await ipfsInstance.add(JSON.stringify(object))
-  console.log(cid, 'cid')
   return cid
 }
 
 export async function deployNFTtoIPFS(ipfsInstance, imageURL, oldMeta, type) {
-  console.log(ipfsInstance, imageURL, oldMeta, type, 'deployNFTtoIPFS')
   let imageCID = await pushImageToIpfs(ipfsInstance, imageURL, type)
   let meta = JSON.parse(JSON.stringify(oldMeta))
   meta.animation_url = `ipfs://${imageCID}`
@@ -228,8 +224,14 @@ export async function getImageForTokenByURI(ipfsInstance, imageAddress) {
   let image
   if (imageAddress) {
     let cid = CID_RE.exec(imageAddress)?.[0]
-    let localImageURL = await getImageFromIpfs(ipfsInstance, cid)
-    image = localImageURL
+
+    // todo: differ IPFS address with other https files
+    if (cid) {
+      let localImageURL = await getImageFromIpfs(ipfsInstance, cid)
+      image = localImageURL
+    } else {
+      image = imageAddress
+    }
   }
   return image
 }

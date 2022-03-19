@@ -2,7 +2,7 @@
   <div class="nft-cards__media-wrap">
     <img
       class="nft-cards__media"
-      :src="localImage ? localImage.tokenImage : urlData || placeholder()"
+      :src="urlData || placeholder()"
     >
     <router-link
       v-if="editAvailable"
@@ -24,7 +24,8 @@ export default {
   props: [
     'metadata',
     'routeInfo',
-    'editAvailable'
+    'editAvailable',
+    'isBundle',
   ],
   data() {
     return {
@@ -38,8 +39,17 @@ export default {
     ]),
     async loadContent () {
       if (this.metadata) {
-        await this.setTokenImage(this.metadata)
-        const url = this.getNFTsPool ? this.getNFTsPool.find((item) => item.token_id === this.metadata.token_id).tokenImage : null
+
+        // for restricting loading of extra images, when its already were loaded
+        if (this.getNFTsPool && (this.getNFTsPool.length) < this.getNFTsTotal) {
+          await this.setTokenImage(this.metadata)
+        }
+
+        if (this.isBundle) {
+          await this.setTokenImage(this.metadata)
+        }
+
+        const url = this.getNFTsPool ? this.getNFTsPool.find((item) => item.token_id === this.metadata.token_id).url : null
         this.urlData = url
       }
     },
@@ -51,7 +61,7 @@ export default {
     // if to go to specific page with :id, refresh page, and then back to whole list, watcher do not trigger
     // only mounted request is not enough
     // todo: rethink logic of requests
-    if (this.getIpfs && this.getNFTsPool && this.getAllNFTs && this.getNFTsPool.length < this.getAllNFTs.length) {
+    if (this.getIpfs) {
       this.loadContent()
     }
   },
@@ -71,10 +81,8 @@ export default {
       'getIpfs',
       'getNFTsPool',
       'getAllNFTs',
+      'getNFTsTotal',
     ]),
-    localImage () {
-      return this.getNFTsPool ? this.getNFTsPool.find((item) => item.token_id === this.metadata.token_id) : null
-    },
   }
 }
 

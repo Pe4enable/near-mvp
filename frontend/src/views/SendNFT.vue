@@ -22,10 +22,10 @@
           </div>
           <div class="form-nft-send__inputs">
             <div>
-              <span class="form-nft-send__inputs-title">Receiver ID</span>
+              <span class="form-nft-send__inputs-title">Contract ID</span>
               <input
                 type="text"
-                placeholder="Receiver ID"
+                placeholder="Contract ID"
                 class="input form-nft__input"
                 v-model="nftObj.receiver_id"
               >
@@ -34,7 +34,7 @@
               <button
                 class="main-btn"
                 @click="approveNFTHandler"
-                :disabled="!isNFTApproved(NFTComputedData)"
+                :disabled="!isNFTApproved(NFTComputedData) || !nftObj.receiver_id"
               >Approve</button>
               <button
                 class="main-btn"
@@ -69,7 +69,7 @@ export default {
   data() {
     return {
       nftObj: {
-        receiver_id: 'near_testing2.testnet',
+        receiver_id: '',
         token_id: [],
         media: '',
       },
@@ -100,14 +100,18 @@ export default {
     },
     isNFTApproved() {
       return (NFTComputedData) => {
-        let getKeyLength = 0
+        let status = true
 
-        if (this.getAllNFTs && NFTComputedData) {
-          const tokenData = this.getAllNFTs.find((item) => item.token_id === NFTComputedData.token_id)
-          getKeyLength = tokenData ? Object.keys(tokenData.approved_account_ids).length : 0
+        // if input ID equal to approved_account_ids key, its approved and able to send
+        if (NFTComputedData && NFTComputedData.approved_account_ids) {
+          Object.keys(this.NFTComputedData.approved_account_ids).forEach((item) => {
+            if (item === this.nftObj.receiver_id) {
+              status = false
+            }
+          })
         }
 
-        return getKeyLength === 0
+        return status
       }
     },
     statusText() {
@@ -145,8 +149,6 @@ export default {
     getAllNFTs: {
       handler(value) {
         const data = value.find((item) => item.token_id === this.$route.params.id)
-        console.log(data, 'data')
-        console.log(value, 'getAllNFTs')
         if (this.getAllNFTs && data) {
           this.NFTData = data
           this.nftObj.media = data.metadata.media
@@ -187,7 +189,7 @@ export default {
       // }
     },
     approveNFTHandler() {
-      this.setNFTApproveId(this.NFTComputedData.token_id)
+      this.setNFTApproveId({ token_id: this.NFTComputedData.token_id, approve_id: this.nftObj.receiver_id})
     },
     sendNFTHandler() {
       this.sendNFTByToken({

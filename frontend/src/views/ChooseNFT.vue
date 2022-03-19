@@ -9,20 +9,35 @@
       <h1>Choose NFT and apply effect</h1>
       <div class="nft-cards">
         <div
-          v-for="item in getAllNFTs"
-          :key="item.token_id"
-          class="nft-cards__item"
-          :class="{ 'chosen-card': cardClass(item.token_id)}"
-          @click="chooseNFT(item)"
+          v-for="contractData in getFilteredNFTsByContract"
+          :key="contractData.id"
+          class="nft-cards__contract"
         >
-          <token-card
-            :metadata="item"
-            :key="item.token_id"
-            :edit-available="true"
-          />
+          <template v-if="contractData.NFTS && contractData.NFTS.length">
+            <h3>Contract: {{contractData.contractName}}</h3>
+            <div class="nft-cards__contract-inner">
+              <div
+                class="nft-cards__contract__item"
+                v-for="item in contractData.NFTS"
+                :key="item.key"
+                :class="{ 'chosen-card': cardClass(item.token_id)}"
+                @click="chooseNFT(item)"
+              >
+                <token-card
+                  :metadata="item"
+                  :key="item.token_id"
+                  :edit-available="true"
+                />
+              </div>
+            </div>
+          </template>
         </div>
       </div>
-      <button v-if="getAllNFTs && getAllNFTs.length" @click="loadMoreNFT" class="main-btn">Get more NFT</button>
+      <button
+        v-if="contractLimit + 1 < getNFTsByContract.length"
+        @click="loadMoreNFT"
+        class="main-btn main-btn--choose"
+      >Get more NFT</button>
     </main>
   </div>
 </template>
@@ -55,7 +70,8 @@ export default {
       },
       notificationVisible: false,
       nftArray: [],
-      urlData: []
+      urlData: [],
+      contractLimit: 2,
     }
   },
 
@@ -65,11 +81,16 @@ export default {
       'getEffects',
       'getDeployedPictureMeta',
       'getAllNFTs',
+      'getNFTsByContract',
       'getNftsAreLoading',
       'getStatus',
       'getIpfs',
       'getNFTlimit',
     ]),
+    getFilteredNFTsByContract() {
+      let newArr = [].concat(this.getNFTsByContract).sort((a, b) => a.id - b.id)
+      return newArr.slice(0, this.contractLimit + 1)
+    },
     cardClass() {
       return (idx) => this.nftObj.token_id.indexOf(idx) !== -1
     },
@@ -154,8 +175,7 @@ export default {
       'getListOfNFT',
     ]),
     loadMoreNFT() {
-      this.passNFTlimit(this.getNFTlimit + 15)
-      this.getListOfNFT()
+      this.contractLimit += 2
     },
     // choosing NFT for applying effects, sending or bundling later
     chooseNFT(item) {
@@ -185,8 +205,22 @@ export default {
   flex-wrap: wrap;
 }
 
-.nft-cards__item {
+.nft-cards__contract {
+  width: 100%;
+
+  h3 {
+    margin-bottom: 10px;
+  }
+}
+
+.nft-cards__contract-inner {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.nft-cards__contract__item {
   width: 19%;
+  min-width: 200px;
   margin-bottom: 30px;
   margin-right: 5px;
   cursor: pointer;
@@ -197,7 +231,18 @@ export default {
   }
 }
 
-.nft-cards__item.chosen-card {
+.nft-cards__contract__item--bundle-data {
+  width: 24%;
+  cursor: default;
+
+  img {
+    border: 1px solid #2d094970;
+    margin-top: 15px;
+    border-radius: 4px;
+  }
+}
+
+.nft-cards__contract__item.chosen-card {
   box-shadow: -2px -2px 12px 11px rgba(127, 251, 255, 0.7);
   transform: scale(0.9);
   .nft-cards__info {
@@ -209,7 +254,7 @@ export default {
   display: block;
   width: 100%;
   height: 200px;
-  object-fit: contain;
+  object-fit: cover;
 
   .form-nft__detail-page & {
     width: 300px;
