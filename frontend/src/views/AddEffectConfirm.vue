@@ -118,6 +118,8 @@ export default {
       'getStatus',
       'getEffect',
       'getDeployedPictureMeta',
+      'getContract',
+      'getBundleContract',
     ]),
     getNav() {
       return [
@@ -182,14 +184,26 @@ export default {
       'setResult',
       'setDeployedPictureMeta',
       'passNFT',
-      'createNewRandomNFT',
+      'createNewBundleNFT',
     ]),
     // minting NFT with NEW effects
     async handleMint() {
-      // this.$router.push({'name': 'Minting'})
       await this.setResult()
       await this.setDeployedPictureMeta()
-      const obj = {
+      const bundleArr = [this.NFTComputedData]
+
+      // TODO: make approval checking of ALL TOKENS, should be SAME
+      let approval_id = null
+
+      if (bundleArr[0].approved_account_ids) {
+        approval_id = bundleArr[0].approved_account_ids[this.getBundleContract.contractId]
+      }
+      const newBundle = bundleArr.map((item) => ({ ...item, contract: this.getContract.contractId, approval_id }))
+      console.log(bundleArr, 'bundleArr')
+      console.log(approval_id, 'approval_id')
+      console.log(newBundle, 'newBundle')
+
+      this.createNewBundleNFT({
         token_id: `token-${Date.now()}`,
         metadata: {
           title: this.nftObj.metadata.title,
@@ -197,14 +211,7 @@ export default {
           media: this.getDeployedPictureMeta,
           copies: 1,
         },
-      }
-      this.createNFTWithEffect(obj)
-      console.log('handleMint')
-    },
-    createNFTWithEffect(obj) {
-      this.createNewRandomNFT({
-        token_id: obj.token_id,
-        metadata: obj.metadata,
+        bundles: bundleArr.map((item) => ({ ...item, contract: this.getContract.contractId, approval_id })),
       })
     },
   },
